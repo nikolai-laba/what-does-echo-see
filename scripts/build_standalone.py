@@ -2,8 +2,9 @@
 """Build a single-file copy of the trends page that opens with a double-click.
 
 site/index.html fetches its CSVs at runtime, which browsers block for pages opened
-from disk. This script embeds the current ECHO snapshot and, if it exists, the
-resource directory into one HTML file to email or zip (for example, for judges).
+from disk. This script embeds the current ECHO snapshot and, if they exist, the
+resource directory, the monthly crime summary and the yearly calls-for-service
+totals into one HTML file to email or zip (for example, for judges).
 The copy is a snapshot: rerun after the resource directory changes.
 
 Standard library only. Usage, from anywhere:
@@ -21,6 +22,8 @@ PAGE = ROOT / 'site' / 'index.html'
 SOURCES = {
     '../data/echo-activity-oak-park.csv': ROOT / 'data' / 'echo-activity-oak-park.csv',
     '../resources/resource-directory.csv': ROOT / 'resources' / 'resource-directory.csv',
+    '../data/crime-monthly-oak-park.csv': ROOT / 'data' / 'crime-monthly-oak-park.csv',
+    '../data/calls-for-service-totals.csv': ROOT / 'data' / 'calls-for-service-totals.csv',
 }
 MARKER = '<script>\n(() => {'
 
@@ -40,7 +43,7 @@ def main():
             embedded[url] = path.read_text(encoding='utf-8')
             print(f'embedded {path.relative_to(ROOT)} ({len(embedded[url].splitlines()) - 1} rows)')
         else:
-            print(f'skipped {path.relative_to(ROOT)} (not found; panels will say the directory is in progress)')
+            print(f'skipped {path.relative_to(ROOT)} (not found; the page shows a placeholder)')
     if '../data/echo-activity-oak-park.csv' not in embedded:
         raise SystemExit('the ECHO data file is required')
 

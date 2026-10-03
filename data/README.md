@@ -7,7 +7,8 @@ Everything the team needs for "What does ECHO see?", cached so nothing depends o
 | [echo-activity-oak-park.csv](echo-activity-oak-park.csv) | 494 | Aggregate ECHO services, Feb 2025 to Sep 2026 (September partial), five tables in long format |
 | [police-calls-echo-relevant-2025.csv](police-calls-echo-relevant-2025.csv) | 28 | 2025 police calls for service for the call types the Village considers for alternative response, with a suggested ECHO category |
 | [calls-for-service-totals.csv](calls-for-service-totals.csv) | 4 | Total police and fire calls for service, 2022 to 2025 |
-| [crime-incidents-oak-park.csv](crime-incidents-oak-park.csv) | 13,913 | Reported offenses, Jan 2022 to Sep 1, 2026 (stretch goal only) |
+| [crime-incidents-oak-park.csv](crime-incidents-oak-park.csv) | 13,913 | Reported offenses, Jan 2022 to Sep 1, 2026 (input to the monthly summary) |
+| [crime-monthly-oak-park.csv](crime-monthly-oak-park.csv) | 224 | Reported crime incidents per month, All and by person, property and society, Jan 2022 to Aug 2026 (derived) |
 
 Definitions for the ECHO categories and referral sources are in [../docs/echo-data-key.md](../docs/echo-data-key.md).
 
@@ -50,6 +51,10 @@ Privacy: the source has no location, age, name, or note fields, so nothing below
 
 Caveats: a service is one logged contact, not one person, so counts are workload, not caseload. The timestamp is when staff logged the referral: 97 percent fall on weekdays and about a quarter carry a 2 a.m. to 6 a.m. stamp, which does not match a business-hours team, so ask the ECHO team what the field means before reading hour of day. A blank service category appears from July 2026. September 2025 is double its neighbors for an unknown reason. The current month is partial; the report refreshes daily.
 
+
+### crime-monthly-oak-park.csv
+
+Derived from crime-incidents-oak-park.csv by `python3 scripts/crime_monthly.py`. Columns: `month`, `crime_against` (`All`, `Person`, `Property`, `Society`), `incidents` (distinct `incident_id`). `All` counts each incident once; the three categories count an incident in every category it involves (about 200 incidents involve more than one), so they add up to more than `All`. The partial last month (September 2026) is dropped. This is the only crime file the trends page loads. After refreshing the crime file, rerun the script and update the pinned figures in `tests/test_echo.py` (`ContextNumbers`) together.
 
 ### crime-incidents-oak-park.csv
 

@@ -5,6 +5,10 @@ Run: python3 -m unittest discover -s tests -v   (standard library only)
 import csv
 import importlib.util
 from pathlib import Path
+import re
+import subprocess
+import sys
+import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -110,6 +114,78 @@ class PageNumbers(unittest.TestCase):
         self.assertEqual(sum(sum(m.values()) for m in by.values()), 1598)
         self.assertEqual((by['Police Department']['2025-09'], by['Fire Department']['2025-09']), (76, 37))
         self.assertEqual(sorted(by['Emergency Housing']), ['2025-07', '2025-08', '2025-09', '2025-10'])
+
+
+class ContextNumbers(unittest.TestCase):
+    """Figures the "Community context" tab and research/crime-and-echo.md quote."""
+
+    def setUp(self):
+        with (ROOT / 'data/crime-monthly-oak-park.csv').open() as f:
+            self.rows = list(csv.DictReader(f))
+        self.by = {(r['month'], r['crime_against']): int(r['incidents']) for r in self.rows}
+
+    def test_aggregate_matches_the_raw_crime_file(self):
+        with (ROOT / 'data/crime-incidents-oak-park.csv').open() as f:
+            expected = module('crime_monthly').monthly_counts(csv.DictReader(f))
+        self.assertEqual(self.by, expected, 'rerun scripts/crime_monthly.py after refreshing the crime file')
+
+    def test_complete_months_only(self):
+        months = sorted({m for m, _ in self.by})
+        self.assertEqual((months[0], months[-1], len(months)), ('2022-01', '2026-08', 56))
+
+    def test_same_month_windows(self):
+        def window(y, cat):
+            return sum(n for (m, c), n in self.by.items() if c == cat and f'{y}-03' <= m <= f'{y + 1}-02')
+        self.assertEqual([window(y, 'All') for y in (2022, 2023, 2024, 2025)], [3115, 3051, 2968, 2708])
+        # An incident counts in every category it involves.
+        self.assertEqual([window(y, 'Person') for y in (2022, 2023, 2024, 2025)], [560, 504, 546, 533])
+        self.assertEqual([window(y, 'Property') for y in (2022, 2023, 2024, 2025)], [2544, 2534, 2426, 2159])
+
+    def test_calls_for_service_totals(self):
+        with (ROOT / 'data/calls-for-service-totals.csv').open() as f:
+            rows = {r['year']: (int(r['police_calls']), int(r['fire_calls'])) for r in csv.DictReader(f)}
+        self.assertEqual(rows['2022'], (46869, 8594))
+        self.assertEqual(rows['2025'], (37369, 9474))
+
+
+class SyntheticIsolation(unittest.TestCase):
+    """Synthetic FOIA templates must never reach data/, the trends page, or the standalone build."""
+
+    def test_every_template_row_is_flagged_synthetic(self):
+        templates = sorted((ROOT / 'foia/templates').glob('*.csv'))
+        self.assertTrue(templates)
+        for path in templates:
+            self.assertTrue(path.name.startswith('SYNTHETIC-'), path.name)
+            with path.open() as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            self.assertEqual(reader.fieldnames[0], 'synthetic', path.name)
+            self.assertTrue(rows and all(r['synthetic'] == 'yes' for r in rows), path.name)
+
+    def test_no_synthetic_data_in_data_folder(self):
+        for path in (ROOT / 'data').glob('*.csv'):
+            with path.open() as f:
+                header = next(csv.reader(f))
+            self.assertNotIn('synthetic', header, path.name)
+
+    def test_trends_page_and_build_never_touch_foia(self):
+        page = (ROOT / 'site/index.html').read_text()
+        self.assertNotIn('foia/', page)
+        self.assertNotIn('prototype-calls', page)
+        build = module('build_standalone')
+        self.assertFalse(any('foia' in str(p) for p in build.SOURCES.values()))
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / 'page.html'
+            subprocess.run([sys.executable, str(ROOT / 'scripts/build_standalone.py'), '-o', str(out)],
+                           check=True, capture_output=True)
+            self.assertNotIn('synthetic', out.read_text().lower())
+
+
+class BuildContract(unittest.TestCase):
+    def test_every_csv_the_page_loads_is_embedded_by_the_build(self):
+        page = (ROOT / 'site/index.html').read_text()
+        urls = set(re.findall(r"'(\.\./(?:data|resources)/[\w.-]+\.csv)'", page))
+        self.assertEqual(urls, set(module('build_standalone').SOURCES))
 
 
 if __name__ == '__main__':

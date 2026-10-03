@@ -11,7 +11,7 @@
 
 - Explore referral-source and weekday breakdowns, treating `suppressed` as unavailable, not zero. Defer time-block interpretation until the ECHO team confirms the logging timestamp and time zone.
 
-- Put ECHO next to monthly crime counts by NIBRS category from [crime-incidents-oak-park.csv](../data/crime-incidents-oak-park.csv).
+- Put ECHO next to monthly crime counts by NIBRS category from [crime-incidents-oak-park.csv](../data/crime-incidents-oak-park.csv). Done on the trends page's "Community context" tab; see [crime-and-echo.md](../research/crime-and-echo.md) for why the comparison can't show ECHO's effect, and [../foia/](../foia/) for draft requests for data that could.
 - Ask what the September 2025 spike was by reading the Village Board packets from that fall.
 - Turn the resource table into a plain-language "who to call" card for each category, checked against the ECHO team's own referral list.
 

@@ -250,6 +250,17 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
 .hidden-note { font-size: 13.5px; color: var(--ink-3); margin: 8px 0 0; }
 .cell-hidden { color: var(--ink-3); font-style: italic; }
 
+/* Community context tab */
+.ctx-callout { max-width: 72ch; font-size: 15px; margin: 4px 0 8px; }
+.ctx-callout b { color: inherit; }
+.swatch.marker { width: 0; height: 14px; border-left: 2px dashed var(--ink-2); border-radius: 0; margin-right: 8px; }
+.echo-start { stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.calls { display: grid; gap: 8px 40px; }
+@media (min-width: 820px) { .calls { grid-template-columns: 1fr 1fr; } }
+.calls .src-bars { margin-top: 8px; }
+.calls .src-bars .brow { grid-template-columns: minmax(0, 13.5em) 1fr 4.4em; }
+td .chg { display: block; font-size: 11.5px; color: var(--ink-3); }
+
 /* Day and time tab */
 .sub-h { font-size: 19px; font-weight: 700; margin: 28px 0 4px; }
 .brow .hidden-tag { font-weight: 500; color: var(--ink-3); font-size: 12.5px; margin-left: 6px; white-space: nowrap; }
@@ -274,6 +285,7 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
     <button class="tab" role="tab" id="tab-services" aria-controls="view-services" aria-selected="true" data-hash="services">By kind of need</button>
     <button class="tab" role="tab" id="tab-referrals" aria-controls="view-referrals" aria-selected="false" tabindex="-1" data-hash="referrals">By referral source</button>
     <button class="tab" role="tab" id="tab-weekday" aria-controls="view-weekday" aria-selected="false" tabindex="-1" data-hash="weekday">By weekday</button>
+    <button class="tab" role="tab" id="tab-context" aria-controls="view-context" aria-selected="false" tabindex="-1" data-hash="context">Community context</button>
   </div>
 </nav>
 
@@ -375,6 +387,33 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
   </section>
   </div>
 
+  <div id="view-context" role="tabpanel" aria-labelledby="tab-context" tabindex="0" hidden>
+  <section class="hero" aria-labelledby="ctx-h">
+    <h2 class="section-h" id="ctx-h">Crime and calls for service in Oak Park</h2>
+    <p class="flag ctx-callout"><b>This tab is not ECHO data.</b> It shows reported crime and police and fire calls for the whole Village, as background for ECHO's work. These trends say nothing about whether ECHO caused any change: the decline began before ECHO started, most of it is property crime, which ECHO doesn't work on, and ECHO's records have no locations to compare against.</p>
+    <h3 class="sub-h">Reported crime incidents per month</h3>
+    <p class="section-sub">Distinct incidents reported to Oak Park police, January 2022 to August 2026, from the Police Department's public crime dashboard. Reported crimes only, not all calls to police.</p>
+    <div class="chart" id="crime-monthly"></div>
+    <div class="legend-key" aria-hidden="true">
+      <span><span class="swatch solid"></span>Reported incidents in a month</span>
+      <span><span class="swatch marker"></span>ECHO begins, February 2025</span>
+    </div>
+    <h3 class="sub-h">The same 12 months, year by year</h3>
+    <p class="section-sub">March to February each year, so every window covers the same seasons. The change is against the window before.</p>
+    <div class="table-scroll" id="crime-table"></div>
+  </section>
+
+  <section class="needs" aria-labelledby="calls-h">
+    <h2 class="section-h" id="calls-h">Calls for service per year</h2>
+    <p class="section-sub">All dispatched police and fire calls, from the Village Board's June 2026 Phase 2 presentation. Police calls were already falling before ECHO started; fire calls rose. Each list has its own scale.</p>
+    <div class="calls">
+      <div><h3 class="sub-h">Police</h3><ul class="src-bars" id="calls-police" aria-label="Police calls for service per year"></ul></div>
+      <div><h3 class="sub-h">Fire</h3><ul class="src-bars" id="calls-fire" aria-label="Fire calls for service per year"></ul></div>
+    </div>
+    <p class="section-sub">The team's research note, <code>research/crime-and-echo.md</code>, covers what these numbers can and can't show, and what data would show ECHO's effect.</p>
+  </section>
+  </div>
+
   <footer>
     <h2>Limits of this data</h2>
     <ul>
@@ -382,9 +421,11 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
       <li>"By kind of need" uses the dashboard's month-by-service table. "By referral source" uses its month-by-referral-source table and its referral-source-by-service table. "By weekday" uses its weekday-by-service table. These tables count the same services in different ways, so they are never added together.</li>
       <li>The team works weekdays, so the timing of these counts reflects its schedule, not when needs arise.</li>
       <li>Category labels have no official definitions. The descriptions here are pieced together from Village Board presentations and may not match how staff assign categories.</li>
+      <li>"Community context" shows reported crimes and calls for service for the whole Village. The decline in both began before ECHO, and crime is a weak measure of ECHO's mostly non-criminal work, so the tab draws no conclusions about ECHO's effect.</li>
     </ul>
     <h2>Sources</h2>
     <p>ECHO counts: Village of Oak Park <a href="https://opendata.oak-park.us/EchoActivity">ECHO Activity dashboard</a>, cached for Day in Our Data on September 17, 2026, February 2025 through part of September 2026. Program details: the Village's <a href="https://www.oak-park.us/Community/Community-Services/E.C.H.O-Engaging-Community-for-Healthy-Outcomes">E.C.H.O. page</a> and Board presentations listed in the team's data key. Questions or corrections: the ECHO team at <a href="mailto:echo@oak-park.us">echo@oak-park.us</a>.</p>
+    <p>Crime: Oak Park Police Department "Crime Incident - Public" dashboard, linked from the Village's <a href="https://www.oak-park.us/Public-Safety/Police-Department/Reports-Maps/Crime-Maps">Crime Maps</a> page, cached January 2022 to September 1, 2026 and summarized to monthly counts. Calls for service: <a href="https://oak-park.legistar1.com/oak-park/attachments/21db010a-41cb-410a-9828-9ce4a0ef9fc7.pptx">Alternative Response Phase 2 presentation</a>, June 2026, slide 3.</p>
     <p>Local services come from the team's resource directory, checked against each provider's published page on the date shown in the data.</p>
   </footer>
 </main>
@@ -393,6 +434,8 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
 (() => {
   const ECHO_CSV = '../data/echo-activity-oak-park.csv';
   const RESOURCE_CSV = '../resources/resource-directory.csv';
+  const CRIME_CSV = '../data/crime-monthly-oak-park.csv';
+  const CALLS_CSV = '../data/calls-for-service-totals.csv';
   const UNCATEGORIZED = 'Not categorized';
 
   // One-line definitions and flags, from docs/echo-data-key.md.
@@ -968,6 +1011,112 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
       '<p class="hidden-note" style="padding:8px 10px;margin:0">All months combined. Percent = that day\'s share of the row\'s shown services. "hidden" = withheld for privacy, not zero. "–" = none in the dashboard\'s table.</p>';
   }
 
+  // ---------- Community context (not ECHO data) ----------
+  const ECHO_START = '2025-02';
+  const CRIME_CATS = ['All', 'Person', 'Property', 'Society'];
+
+  // data/crime-monthly-oak-park.csv, written by scripts/crime_monthly.py: complete months only.
+  function buildCrimeModel(rows) {
+    const by = new Map(CRIME_CATS.map(c => [c, new Map()]));
+    for (const r of rows) {
+      const n = parseCount(r.incidents);
+      if (n !== null && by.has(r.crime_against)) by.get(r.crime_against).set(r.month, n);
+    }
+    const months = [...by.get('All').keys()].sort();
+    return { months, by };
+  }
+
+  function drawCrimeMonthly(crime) {
+    const box = document.getElementById('crime-monthly');
+    box.innerHTML = '';
+    const W = box.clientWidth, narrow = W < 560;
+    const H = narrow ? 230 : 280;
+    const m = { l: 36, r: 6, t: 30, b: 40 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const all = crime.by.get('All');
+    const max = niceMax(Math.max(...all.values()), 100);
+    const n = crime.months.length, band = iw / n, bw = Math.max(2, band * 0.7);
+    const x = i => m.l + band * i + (band - bw) / 2;
+    const y = v => m.t + ih - (v / max) * ih;
+    const svg = el('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: 'img',
+      'aria-label': `Bar chart of reported crime incidents per month in Oak Park, ${shortLabel(crime.months[0])} to ${shortLabel(crime.months[n - 1])}, with ECHO's February 2025 start marked. Window totals are in the table below.` }, box);
+    const axis = el('g', { class: 'axis' }, svg);
+    for (let v = 0; v <= max; v += 100) {
+      el('line', { class: v === 0 ? 'baseline' : 'gridline', x1: m.l, x2: W - m.r, y1: y(v), y2: y(v) }, axis);
+      const t = el('text', { x: m.l - 8, y: y(v) + 4, 'text-anchor': 'end' }, axis); t.textContent = v;
+    }
+    crime.months.forEach((mo, i) => {
+      const { y: yr, mo: mon } = ym(mo);
+      if (mon === 1) {
+        const t = el('text', { x: x(i), y: H - m.b + 18, 'text-anchor': 'start', style: 'font-weight:600' }, axis);
+        t.textContent = yr;
+      } else if (!narrow && mon === 7) {
+        const t = el('text', { x: x(i) + bw / 2, y: H - m.b + 18, 'text-anchor': 'middle' }, axis);
+        t.textContent = 'Jul';
+      }
+    });
+    const bars = crime.months.map((mo, i) => {
+      const v = all.get(mo), x0 = x(i), y0 = y(v), r = Math.min(3, bw / 2, y(0) - y0);
+      const d = `M${x0},${y(0)} V${y0 + r} Q${x0},${y0} ${x0 + r},${y0} H${x0 + bw - r} Q${x0 + bw},${y0} ${x0 + bw},${y0 + r} V${y(0)} Z`;
+      return el('path', { d, class: 'bar' }, svg);
+    });
+    // ECHO start marker, between January and February 2025.
+    const si = crime.months.indexOf(ECHO_START);
+    if (si > 0) {
+      const sx = m.l + band * si;
+      el('line', { class: 'echo-start', x1: sx, x2: sx, y1: m.t - 14, y2: y(0) }, svg);
+      const t = el('text', { class: 'annot', x: sx + 5, y: m.t - 18, 'text-anchor': 'start' }, svg);
+      t.textContent = 'ECHO begins';
+    }
+    const tip = makeTooltip(box);
+    crime.months.forEach((mo, i) => {
+      const hit = el('rect', { class: 'hit', x: m.l + band * i, y: m.t, width: band, height: ih, tabindex: 0,
+        'aria-label': `${longLabel(mo)}: ${all.get(mo)} reported incidents` }, svg);
+      const show = () => {
+        bars.forEach((b, j) => b.classList.toggle('dim', j !== i));
+        const rows = CRIME_CATS.slice(1).map(c => `<div class="tt-row"><span>Against ${c.toLowerCase()}</span><span>${crime.by.get(c).get(mo) ?? 0}</span></div>`).join('');
+        tip.show(`<div class="tt-h">${longLabel(mo)}: ${fmt(all.get(mo))} incidents</div>${rows}` +
+          '<div class="tt-note">An incident can involve more than one category.</div>', x(i) + bw / 2, y(all.get(mo)));
+      };
+      const hide = () => { bars.forEach(b => b.classList.remove('dim')); tip.hide(); };
+      hit.addEventListener('pointerenter', show); hit.addEventListener('pointerleave', hide);
+      hit.addEventListener('focus', show); hit.addEventListener('blur', hide);
+    });
+  }
+
+  // Same 12 months (March to February) each year, so every window covers the same seasons.
+  function drawCrimeTable(crime) {
+    const windows = [];
+    for (let y = 2022; ; y++) {
+      const ms = crime.months.filter(mo => mo >= `${y}-03` && mo <= `${y + 1}-02`);
+      if (ms.length < 12) break;
+      windows.push({ label: `Mar ${y} – Feb ${y + 1}`, start: `${y}-03`, ms });
+    }
+    const sum = (w, c) => w.ms.reduce((a, mo) => a + (crime.by.get(c).get(mo) || 0), 0);
+    let h = '<table><thead><tr><th scope="col">12 months</th>' + CRIME_CATS.map(c => `<th scope="col">${c === 'All' ? 'All incidents' : 'Against ' + c.toLowerCase()}</th>`).join('') + '</tr></thead><tbody>';
+    windows.forEach((w, i) => {
+      const echo = w.start > ECHO_START;
+      h += `<tr><td>${w.label}${echo ? '<span class="row-note">ECHO\'s first full year</span>' : ''}</td>` + CRIME_CATS.map(c => {
+        const v = sum(w, c);
+        if (!i) return `<td>${fmt(v)}</td>`;
+        const prev = sum(windows[i - 1], c), p = ((v - prev) / prev) * 100;
+        return `<td>${fmt(v)}<span class="chg">${p > 0 ? '+' : ''}${p.toFixed(1)}%</span></td>`;
+      }).join('') + '</tr>';
+    });
+    document.getElementById('crime-table').innerHTML = h + '</tbody></table>' +
+      '<p class="hidden-note" style="padding:8px 10px;margin:0">An incident counts in every category it involves, so the categories add up to more than all incidents. ECHO began in February 2025, the last month of the Mar 2024 – Feb 2025 window.</p>';
+  }
+
+  function drawCalls(rows) {
+    const list = (id, col) => {
+      const vals = rows.map(r => ({ year: r.year, n: parseCount(r[col]) })).filter(r => r.n !== null);
+      const max = Math.max(...vals.map(r => r.n));
+      document.getElementById(id).innerHTML = vals.map(r => barRow(r.year === '2025' ? '2025 · ECHO\'s first year' : r.year, r.n, max)).join('');
+    };
+    list('calls-police', 'police_calls');
+    list('calls-fire', 'fire_calls');
+  }
+
   // ---------- Tabs ----------
   function setupTabs(onShow) {
     const tabs = [...document.querySelectorAll('[role="tab"]')];
@@ -1030,6 +1179,11 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
       const unmatched = resources.filter(r => !known.has(r.echo_category));
       if (unmatched.length) console.warn('Resource rows with an unrecognized echo_category:', unmatched.map(r => `${r.provider} (${r.echo_category})`));
     } catch { resources = null; }
+    // Context data is optional: a failure only affects the Community context tab.
+    let crime = null;
+    try { crime = buildCrimeModel(parseCSV(await loadText(CRIME_CSV))); } catch { crime = null; }
+    let calls = null;
+    try { calls = parseCSV(await loadText(CALLS_CSV)); } catch { calls = null; }
 
     const model = buildModel(rows);
     if (model.unavailable) console.warn(`${model.unavailable} monthly cells were not numbers and were left out.`);
@@ -1040,6 +1194,9 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
     drawSourceTable(ref, model);
     drawMixTable(ref, model);
     drawWeekday(rows, model);
+    if (crime) drawCrimeTable(crime);
+    else document.getElementById('crime-monthly').innerHTML = '<p class="empty">The crime summary could not be loaded. Run <code>python3 scripts/crime_monthly.py</code> from the repo folder.</p>';
+    if (calls) drawCalls(calls);
 
     // SVG charts need a visible container to measure, so each tab draws when first shown and on resize.
     const views = {
@@ -1051,6 +1208,9 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
         resize() { this.redraw(); } },
       // HTML only, drawn once above; nothing to measure.
       weekday: { box: 'wd-bars', w: -1, init() { this.redraw = () => {}; }, resize() {} },
+      context: { box: 'crime-monthly', w: -1,
+        init() { this.redraw = crime ? () => drawCrimeMonthly(crime) : () => {}; this.redraw(); },
+        resize() { this.redraw(); } },
     };
     let current = null;
     const show = key => {
