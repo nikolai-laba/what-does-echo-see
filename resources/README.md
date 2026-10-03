@@ -32,3 +32,5 @@ The trends page (`site/index.html`) reads this file and lists each service under
 - **Commas:** if a field has a comma in it, like `Rental help, utilities`, wrap the whole field in double quotes. Spreadsheet apps do this for you when you export as CSV.
 - **What's displayed:** provider, program, what they offer, how to reach, hours, and cost, with the name linked to the source page. Eligibility, checked-on date, and notes are saved but not shown yet.
 - **To preview:** from the repo folder, run `python3 -m http.server` and open http://localhost:8000/site/.
+
+Open questions, source conflicts, unpublished details and ideas for building on the directory are logged in [directory-backlog.md](directory-backlog.md).

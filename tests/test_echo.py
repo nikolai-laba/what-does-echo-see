@@ -48,9 +48,25 @@ class CachedData(unittest.TestCase):
                                   'Call Type 2 (domestic/abuse)': 670,
                                   'Community Response': 5214})
 
+    def test_resource_directory_follows_the_readme_columns(self):
+        with (ROOT / 'resources/resource-directory.csv').open() as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        self.assertEqual(reader.fieldnames, ['echo_category', 'provider', 'program', 'what_they_offer',
+                                             'who_is_eligible', 'hours', 'how_to_reach', 'cost',
+                                             'source_url', 'checked_on', 'notes'])
+        categories = {'Unhoused Resident', 'Behavioral Health', 'Senior Services', 'Housing',
+                      'Youth/Family Services', 'Financial Support', 'Domestic Violence',
+                      'Medical Support', 'Food Services'}
+        for r in rows:
+            self.assertIn(r['echo_category'], categories)
+            self.assertTrue(r['source_url'].startswith('https://'), r['program'])
+            self.assertIn('https://', r['how_to_reach'], r['program'])
+            for field in ('who_is_eligible', 'hours', 'cost'):
+                self.assertNotEqual(r[field].strip(), 'Not listed', r['program'])
+            self.assertRegex(r['checked_on'], r'^\d{4}-\d{2}-\d{2}$')
+        self.assertEqual({r['echo_category'] for r in rows}, categories)
 
-if __name__ == '__main__':
-    unittest.main()
 
 
 class PageNumbers(unittest.TestCase):
@@ -83,3 +99,7 @@ class PageNumbers(unittest.TestCase):
         self.assertEqual(cats['Not categorized'], 25)
         top4 = sorted((v for k, v in cats.items() if k not in ('Other', 'Not categorized')), reverse=True)[:4]
         self.assertEqual(top4, [436, 288, 269, 250])
+
+
+if __name__ == '__main__':
+    unittest.main()

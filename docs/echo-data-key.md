@@ -41,7 +41,18 @@ E.C.H.O. (Engaging Community for Healthy Outcomes) is the Village's two-year Alt
 ## Open questions for the ECHO team
 
 1. **Services or referrals?** The dashboard counts 874 services for February to December 2025, while the Board was told "more than 700 referrals" (702 in the February 2026 deck). All 172 extra are Police, Fire, or Resident referrals; the other five sources match exactly. Can one referral produce more than one service row? Until this is answered, call the counts "services", not "referrals".
-2. **September 2025.** The spike is real: the Board's own running total jumps by 162 that month. What caused it?
+2. **September 2025.** The spike is real: the Board's own running total jumps by 162 that month. What caused it? No Board document or news article we found explains it (searched October 3, 2026). What we know:
+   - **The rise came almost entirely from Police and Fire referrals.** The dashboard shows 178 services, against 93 to 105 in the months around it. Police referrals went to 76 (32 to 42 in the months around it) and Fire to 37 (10 to 23). Every category rose, not just one: Behavioral Health 39, Unhoused Resident 38, Senior Services 33, Housing 30, Domestic Violence 10. October fell straight back to 93.
+   - **A one-month jump that falls straight back suggests a one-time event rather than lasting demand (inference).** That could be a batch of follow-ups or catch-up data entry. The Year 1 deck lists "Joint call review and department check-in" with Police and Fire among its takeaways, without a date.
+   - **Several things changed in July 2025, but none would explain a single-month jump on its own:**
+     - A new ECHO program manager started ([Wednesday Journal, Jul 1, 2025](https://www.oakpark.com/2025/07/01/echo-oak-parks-alternative-police-response-hires-new-head/)).
+     - The police "Police to Citizen" online portal launched. Reports filed through it that need social-service follow-up are routed to ECHO ([Wednesday Journal, Jul 22, 2025](https://www.oakpark.com/2025/07/22/oak-park-debuts-online-help-portals-for-police-and-staff/)).
+   - **Homelessness work peaked that fall and may account for part of the rise:**
+     - The "Emergency Housing" referral source appears only from July to October 2025, peaking at 10 in September.
+     - The Board heard the Unhoused Task Force recommendations on September 16, 2025 ([ID 25-539](https://oak-park.legistar1.com/oak-park/attachments/7b2b033b-8433-45cd-ad0c-53d3b8d0703f.pptx)). They gave ECHO the first contact at encampments and the coordination of street outreach.
+     - Housing Forward's 40-bed Anderson shelter at 112 S. Humphrey Ave. was dedicated on September 19 and opened in October ([Wednesday Journal, Sep 23, 2025](https://www.oakpark.com/2025/09/23/housing-forward-cuts-ribbon-on-40-bed-emergency-shelter/)).
+     - None of this explains the rise in Senior Services or Domestic Violence.
+   - **Ask the ECHO team:** was September a real rise in calls, a batch of Police/Fire follow-ups, or a catch-up in data entry?
 3. **2026 shifts.** One of ECHO's Year 2 goals is "tracking call data by address/referral type." Did intake categories change in 2026? That could explain the jump in "Other" in May 2026 and the blank category from July. Separately, did the January 2026 start of 911-to-988 transfers reduce Behavioral Health referrals?
 4. **Timestamps.** About a quarter of services carry a 2 to 6 a.m. timestamp, which doesn't fit a business-hours team. What event and time zone does the timestamp record?
 
