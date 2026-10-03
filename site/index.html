@@ -305,8 +305,8 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
       <p>The dashboard counts 874 services for 2025, while the Village Board was told about 702 referrals. One referral may produce more than one logged service; the ECHO team has not yet said.</p>
     </div>
     <div>
-      <h2>September 2025 is real but unexplained</h2>
-      <p>It is about double the months around it, and the Board's own running total jumps the same month. The cause is an open question for the ECHO team.</p>
+      <h2>September 2025 was likely a one-time batch</h2>
+      <p>It is about double the months around it, and nearly all of the extra came from Police and Fire referrals. Residents' own contacts and reported crime stayed flat, and October fell straight back. Our best guess is a one-time batch of Police and Fire follow-ups, or a catch-up in logging them, rather than a rise in need. The ECHO team has not confirmed this.</p>
     </div>
     <div>
       <h2>The categories shifted in 2026</h2>
@@ -561,14 +561,14 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
       bars.push(el('path', { d, class: 'bar' + (mo === model.partialMonth ? ' partial' : '') }, svg));
     });
 
-    // Annotations: the unexplained peak and the partial month.
+    // Annotations: the September 2025 peak and the partial month.
     const peakMonth = model.months.filter(mo => mo !== model.partialMonth)
       .reduce((a, b) => (model.totals.get(b) > model.totals.get(a) ? b : a));
     const pi = model.months.indexOf(peakMonth);
     const px = x(pi) + bw / 2, py = y(model.totals.get(peakMonth));
     el('line', { class: 'annot-line', x1: px, x2: px, y1: py - 6, y2: m.t - 18 }, svg);
     const peakLabel = el('text', { class: 'annot', x: px + 6, y: m.t - 22, 'text-anchor': pi > n / 2 ? 'end' : 'start' }, svg);
-    peakLabel.innerHTML = `<tspan font-weight="700">${shortLabel(peakMonth)}: ${fmt(model.totals.get(peakMonth))}</tspan><tspan> ${narrow ? 'unexplained' : '· about double its neighbors, cause unknown'}</tspan>`;
+    peakLabel.innerHTML = `<tspan font-weight="700">${shortLabel(peakMonth)}: ${fmt(model.totals.get(peakMonth))}</tspan><tspan> ${narrow ? 'likely a batch' : '· about double its neighbors, likely a one-time batch (unconfirmed)'}</tspan>`;
     if (pi > n / 2) peakLabel.setAttribute('x', px - 6);
 
     const li = n - 1, lx = x(li) + bw / 2, lv = model.totals.get(model.partialMonth);
@@ -588,7 +588,7 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
         let html = `<div class="tt-h">${longLabel(mo)}: ${fmt(model.totals.get(mo))} services</div>`;
         html += top.map(([k, v]) => `<div class="tt-row"><span>${esc(k)}</span><span>${v}</span></div>`).join('');
         if (mo === model.partialMonth) html += `<div class="tt-note">Partial month, still being logged.</div>`;
-        if (mo === peakMonth) html += `<div class="tt-note">Cause of this spike is unknown.</div>`;
+        if (mo === peakMonth) html += `<div class="tt-note">Likely a one-time batch of Police and Fire follow-ups or catch-up logging. Unconfirmed.</div>`;
         tip.show(html, x(i) + bw / 2, y(model.totals.get(mo)));
       };
       const hide = () => { bars.forEach(b => b.classList.remove('dim')); tip.hide(); };
