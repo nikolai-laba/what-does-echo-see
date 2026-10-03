@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A private team workspace for starter project 15, "What does ECHO see?", from the Day in Our Data civic hackathon (Oak Park, IL, October 3, 2026). It was split out of the CISC event repo (https://github.com/oak-park-cisc/Oak_Park_Day_in_our_Data) and holds only this project's data, docs, and extractors. There is no app or build step yet. The deliverables are charts of aggregate ECHO activity and a resource directory (`resources/`), most of which is built by hand by no-code teammates.
+A private team workspace for starter project 15, "What does ECHO see?", from the Day in Our Data civic hackathon (Oak Park, IL, October 3, 2026). It was split out of the CISC event repo (https://github.com/oak-park-cisc/Oak_Park_Day_in_our_Data) and holds only this project's data, docs, and extractors. There is no build step. The deliverables are a trends page of aggregate ECHO activity (`site/index.html`) and a resource directory (`resources/`), most of which is built by hand by no-code teammates. The page displays the directory, so the two are linked (see "Trends page and resource directory" below).
 
 Read these first: `docs/project-card.md` (goals and limits), `docs/echo-data-key.md` (category and referral definitions, open questions), `data/README.md` (file-level sources and caveats).
 
@@ -14,7 +14,22 @@ Read these first: `docs/project-card.md` (goals and limits), `docs/echo-data-key
 python3 -m unittest discover -s tests -v                                   # all checks, stdlib only
 python3 -m unittest discover -s tests -k test_call_volume_files_match_the_board_deck   # one check
 python3 scripts/fetch_echo_activity.py -o /tmp/echo-live.csv                # refresh to a scratch path only
+python3 -m http.server                                                      # from the repo root, then open http://localhost:8000/site/
 ```
+
+## Trends page and resource directory
+
+`site/index.html` is one self-contained file (inline CSS and JS, hand-drawn SVG charts, no libraries). It fetches `../data/echo-activity-oak-park.csv` and `../resources/resource-directory.csv` at runtime, so it must be served over HTTP, not opened as a file. Each category panel has a "Who can help" list built from the directory.
+
+The CSV is the contract between the page and the directory. When creating or editing `resources/resource-directory.csv`:
+
+- Keep the exact filename and the column names in `resources/README.md`; the page reads columns by name.
+- `echo_category` must match a dashboard label exactly, including capitalization and the slash in `Youth/Family Services`. A misspelled row silently drops off the page (the browser console warns about unmatched rows). A service that fits several categories gets one row per category.
+- Write it as standard CSV: wrap any field containing a comma, quote, or line break in double quotes, and double any quote inside one. An unquoted comma shifts every later column in that row.
+- The page shows `provider`, `program`, `what_they_offer`, `how_to_reach`, `hours`, `cost`, and links the name to `source_url`. `who_is_eligible`, `checked_on`, and `notes` are kept in the file but not displayed yet; showing them means editing `resourceList()` in `site/index.html`.
+- After changing the directory, serve the page and check that each row appears under the expected category.
+
+`tests/test_echo.py` (`PageNumbers`) pins figures the page's wording depends on: the Sep 2025 peak of 178, the partial Sep 2026 month, and category totals. In the source, uncategorized services carry the literal service value `(blank)`, which the page shows as "Not categorized".
 
 ## Data
 

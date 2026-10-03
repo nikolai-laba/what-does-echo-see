@@ -22,3 +22,13 @@ Take contact details from the source pages, not from memory. The main starting p
 - The library's Social Services page
 
 The library page blocks automated tools, so open it in a browser.
+
+## How the directory shows up on the trends page
+
+The trends page (`site/index.html`) reads this file and lists each service under its category's panel, so a few details matter:
+
+- **File name:** exactly `resource-directory.csv`, in this folder.
+- **Category names:** copy them exactly from the table above, including capitals and the slash in Youth/Family Services. A row with a typo won't appear. If a service helps with two categories, give it two rows.
+- **Commas:** if a field has a comma in it, like `Rental help, utilities`, wrap the whole field in double quotes. Spreadsheet apps do this for you when you export as CSV.
+- **What's displayed:** provider, program, what they offer, how to reach, hours, and cost, with the name linked to the source page. Eligibility, checked-on date, and notes are saved but not shown yet.
+- **To preview:** from the repo folder, run `python3 -m http.server` and open http://localhost:8000/site/.
