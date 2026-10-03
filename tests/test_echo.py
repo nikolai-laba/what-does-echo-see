@@ -100,6 +100,17 @@ class PageNumbers(unittest.TestCase):
         top4 = sorted((v for k, v in cats.items() if k not in ('Other', 'Not categorized')), reverse=True)[:4]
         self.assertEqual(top4, [436, 288, 269, 250])
 
+    def test_referral_source_figures(self):
+        """Figures the "By referral source" tab states in its text."""
+        with (ROOT / 'data/echo-activity-oak-park.csv').open() as f:
+            rows = [r for r in csv.DictReader(f) if r['breakdown'] == 'referral_by_month']
+        by = {}
+        for r in rows:
+            by.setdefault(r['referral_source'], {})[r['month']] = int(r['count'])
+        self.assertEqual(sum(sum(m.values()) for m in by.values()), 1598)
+        self.assertEqual((by['Police Department']['2025-09'], by['Fire Department']['2025-09']), (76, 37))
+        self.assertEqual(sorted(by['Emergency Housing']), ['2025-07', '2025-08', '2025-09', '2025-10'])
+
 
 if __name__ == '__main__':
     unittest.main()

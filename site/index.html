@@ -220,6 +220,34 @@ footer ul { margin: 0 0 18px; padding-left: 18px; max-width: 80ch; }
 footer li { margin-bottom: 4px; }
 footer p { margin: 0 0 8px; max-width: 80ch; }
 
+/* Tabs */
+.tabs { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--rule); }
+.tabs .wrap { display: flex; gap: 4px; overflow-x: auto; }
+.tab {
+  appearance: none; background: none; border: 0; border-bottom: 3px solid transparent;
+  padding: 12px 12px 10px; font: inherit; font-size: 15.5px; font-weight: 600; color: var(--ink-2);
+  cursor: pointer; white-space: nowrap;
+}
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--data); }
+[role="tabpanel"][hidden] { display: none; }
+
+/* Referral source tab */
+.src-bars, .mix ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.src-bars { margin: 18px 0 6px; max-width: 760px; gap: 8px; }
+.brow { display: grid; grid-template-columns: minmax(0, 11.5em) 1fr 3.2em; align-items: center; gap: 10px; font-size: 14.5px; }
+.src-bars .brow { grid-template-columns: minmax(0, 17em) 1fr 3.6em; font-size: 15px; }
+.brow .lbl { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.brow .track { height: 12px; }
+.src-bars .brow .track { height: 18px; }
+.brow .fill { display: block; height: 100%; min-width: 2px; background: var(--data); border-radius: 0 4px 4px 0; }
+.brow .v { text-align: right; font-weight: 700; }
+.brow.hidden-cell .v { font-weight: 500; color: var(--ink-3); font-size: 13px; }
+.mix { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.mix h4 { font-size: 14px; font-weight: 700; margin: 0 0 8px; }
+.mix .hidden-note { font-size: 13.5px; color: var(--ink-3); margin: 8px 0 0; }
+.cell-hidden { color: var(--ink-3); font-style: italic; }
+
 .error { background: var(--note-bg); color: var(--note); padding: 14px 16px; border-radius: 8px; margin: 24px 0; }
 .error code { color: var(--ink); }
 @media (prefers-reduced-motion: reduce) { .tooltip { transition: none; } }
@@ -227,6 +255,13 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
 </head>
 <body>
 <div class="draft"><div class="wrap"><p>Draft prototype from the Day in Our Data hackathon, October 3, 2026. For review by the Oak Park Board of Health and the ECHO team. Not an official Village product.</p></div></div>
+
+<nav class="tabs" aria-label="Views">
+  <div class="wrap" role="tablist">
+    <button class="tab" role="tab" id="tab-services" aria-controls="view-services" aria-selected="true" data-hash="services">By kind of need</button>
+    <button class="tab" role="tab" id="tab-referrals" aria-controls="view-referrals" aria-selected="false" tabindex="-1" data-hash="referrals">By referral source</button>
+  </div>
+</nav>
 
 <main class="wrap">
   <header class="intro">
@@ -237,6 +272,7 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
 
   <div id="error" class="error" hidden></div>
 
+  <div id="view-services" role="tabpanel" aria-labelledby="tab-services" tabindex="0">
   <section class="hero" aria-labelledby="hero-label">
     <div class="hero-head">
       <div class="hero-total" id="hero-total">&nbsp;<small id="hero-label">services logged</small></div>
@@ -274,12 +310,51 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
       <div class="table-scroll" id="table"></div>
     </details>
   </section>
+  </div>
+
+  <div id="view-referrals" role="tabpanel" aria-labelledby="tab-referrals" tabindex="0" hidden>
+  <section class="hero" aria-labelledby="ref-h">
+    <h2 class="section-h" id="ref-h">Who connected people to ECHO</h2>
+    <p class="section-sub">Every service is logged with the source that brought the resident to ECHO. These are the same services as the other tab, sorted by where they came from instead of what they were for. They are counts of services, not referrals: one referral may lead to more than one service.</p>
+    <ul class="src-bars" id="src-bars" aria-label="Services by referral source, all months"></ul>
+  </section>
+
+  <section class="reading" aria-label="How to read the referral sources">
+    <div>
+      <h2>Police and Fire drove the September 2025 spike</h2>
+      <p>Police (76) and Fire (37) roughly doubled that month while resident contacts stayed flat. Whether it reflects a real rise, a batch of follow-ups, or catch-up data entry is an open question for the ECHO team.</p>
+    </div>
+    <div>
+      <h2>Community Engagement is ECHO itself</h2>
+      <p>It is the team's own outreach, such as street outreach and district cleanings, not an outside referrer. That is why most of it is Unhoused Resident work.</p>
+    </div>
+    <div>
+      <h2>Some cells are hidden for privacy</h2>
+      <p>In the breakdown of what each source sent, small counts and the cells that would reveal them are hidden. Hidden means unavailable. It is not zero or "under 5," and nothing here estimates it.</p>
+    </div>
+  </section>
+
+  <section class="needs" aria-labelledby="src-h">
+    <h2 class="section-h" id="src-h">Each referral source, month by month</h2>
+    <p class="section-sub">Each panel is one referral source. The trend lines share one scale so sources can be compared. Below each trend is what those services were for, from the dashboard's all-time table of referral source by kind of need, which has no months. The 911 call type behind a Police or Fire referral is not in ECHO's data.</p>
+    <div class="grid" id="src-grid"></div>
+
+    <details class="table-view">
+      <summary>Show monthly counts by referral source as a table</summary>
+      <div class="table-scroll" id="src-table"></div>
+    </details>
+    <details class="table-view">
+      <summary>Show referral source by kind of need as a table</summary>
+      <div class="table-scroll" id="mix-table"></div>
+    </details>
+  </section>
+  </div>
 
   <footer>
     <h2>Limits of this data</h2>
     <ul>
       <li>Counts only. The source has no names, ages, addresses, or notes, so nothing here can be mapped or traced to a person.</li>
-      <li>Every chart uses the dashboard's month-by-service table. The dashboard's other tables count the same services in different ways and are never added to these.</li>
+      <li>"By kind of need" uses the dashboard's month-by-service table. "By referral source" uses its month-by-referral-source table and its referral-source-by-service table. All three count the same services in different ways, so they are never added together.</li>
       <li>The team works weekdays, so the timing of these counts reflects its schedule, not when needs arise.</li>
       <li>Category labels have no official definitions. The descriptions here are pieced together from Village Board presentations and may not match how staff assign categories.</li>
     </ul>
@@ -685,6 +760,148 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
       <span><b>${topShare}%</b> fall in four categories: ${top4.map(c => esc(c.name.toLowerCase())).join(', ').replace(/, ([^,]*)$/, ', and $1')}</span>`;
   }
 
+  // ---------- Referral sources ----------
+  // One-line definitions and flags, from docs/echo-data-key.md.
+  const SOURCE_INFO = {
+    'Police Department': { def: 'Follow-up after a police call for service.',
+      flag: 'Police referrals roughly doubled in September 2025 (76), driving most of that month\'s spike. Cause unknown.' },
+    'Fire Department': { def: 'Follow-up after a fire or EMS call.',
+      flag: 'Fire referrals also jumped in September 2025 (37). Cause unknown.' },
+    'Resident Contact': { def: 'Residents calling or walking into Village Hall, for themselves or someone else.' },
+    'Community Engagement': { def: 'ECHO\'s own outreach: street outreach, district cleanings, business district support. Not an outside referrer.' },
+    'Village of Oak Park Departments': { def: 'Referrals from other Village departments.' },
+    'Community Partner': { def: 'Nonprofits, and possibly schools (unconfirmed).' },
+    'Business': { def: 'Referrals from local businesses.' },
+    'Emergency Housing': { def: 'Not defined by the Village.',
+      flag: 'Appears only from July to October 2025, the months around the new emergency shelter. Unconfirmed.' },
+  };
+  const catName = s => ((!s || s === '(blank)') ? UNCATEGORIZED : s);
+
+  function buildReferralModel(rows, model) {
+    const series = new Map();
+    for (const r of rows.filter(r => r.breakdown === 'referral_by_month')) {
+      const n = parseCount(r.count);
+      if (n === null) continue;
+      if (!series.has(r.referral_source)) series.set(r.referral_source, new Map());
+      series.get(r.referral_source).set(r.month, n);
+    }
+    // All-time mix of kinds of need per source. Hidden (suppressed) cells stay null: never estimated.
+    const mix = new Map();
+    for (const r of rows.filter(r => r.breakdown === 'referral_by_service')) {
+      if (!mix.has(r.referral_source)) mix.set(r.referral_source, []);
+      mix.get(r.referral_source).push({ service: catName(r.service), n: parseCount(r.count) });
+    }
+    const sources = [...series.entries()].map(([name, s]) => ({
+      name, series: s,
+      total: [...s.values()].reduce((a, b) => a + b, 0),
+      first: model.months.find(m => s.has(m)),
+      mix: (mix.get(name) || []).sort((a, b) => (b.n ?? -1) - (a.n ?? -1) || a.service.localeCompare(b.service)),
+    })).sort((a, b) => b.total - a.total);
+    const grand = sources.reduce((a, s) => a + s.total, 0);
+    const mixMax = Math.max(1, ...sources.flatMap(s => s.mix.map(c => c.n ?? 0)));
+    return { sources, grand, mixMax };
+  }
+
+  const barRow = (label, n, max, hiddenText) => n === null
+    ? `<li class="brow hidden-cell"><span class="lbl" title="${esc(label)}">${esc(label)}</span><span class="track"></span><span class="v">${hiddenText}</span></li>`
+    : `<li class="brow"><span class="lbl" title="${esc(label)}">${esc(label)}</span><span class="track"><span class="fill" style="width:${(n / max) * 100}%"></span></span><span class="v">${fmt(n)}</span></li>`;
+
+  function drawSourceBars(ref) {
+    const max = ref.sources[0].total;
+    document.getElementById('src-bars').innerHTML = ref.sources.map(s => barRow(s.name, s.total, max)).join('');
+  }
+
+  function drawSourceGrid(ref, model) {
+    const grid = document.getElementById('src-grid');
+    grid.innerHTML = '';
+    const max = niceMax(Math.max(...ref.sources.flatMap(s => [...s.series.values()])), 10);
+    const sparks = [];
+    for (const src of ref.sources) {
+      const info = SOURCE_INFO[src.name] || { def: 'No definition available.' };
+      const share = Math.round((src.total / ref.grand) * 100);
+      const shown = src.mix.filter(c => c.n !== null);
+      const hidden = src.mix.filter(c => c.n === null).map(c => c.service);
+      const mixHtml = src.mix.length ? `
+        <div class="mix"><h4>What these services were for (all months)</h4>
+          <ul>${shown.map(c => barRow(c.service, c.n, ref.mixMax)).join('')}</ul>
+          ${hidden.length ? `<p class="hidden-note">Hidden for privacy: ${hidden.map(esc).join(', ')}.</p>` : ''}
+        </div>` : '';
+      const panel = document.createElement('article');
+      panel.className = 'panel';
+      panel.innerHTML = `
+        <h3>${esc(src.name)}</h3>
+        <div class="total"><span class="n">${fmt(src.total)}</span><span class="share">${share < 1 ? '<1' : share}% of all services</span></div>
+        <p class="def">${esc(info.def)}</p>
+        <div class="spark"></div>
+        ${info.flag ? `<p class="flag">${esc(info.flag)}</p>` : ''}
+        ${mixHtml}`;
+      grid.appendChild(panel);
+      sparks.push([panel.querySelector('.spark'), src]);
+    }
+    const render = () => sparks.forEach(([box, src]) => drawSpark(box, src, model, max));
+    render();
+    return render;
+  }
+
+  function drawSourceTable(ref, model) {
+    const months = model.months, pc = mo => (mo === model.partialMonth ? ' class="partial-col"' : '');
+    let h = '<table><thead><tr><th scope="col">Referral source</th>';
+    h += months.map(mo => `<th scope="col"${pc(mo)}>${shortLabel(mo)}${mo === model.partialMonth ? ' (partial)' : ''}</th>`).join('');
+    h += '<th scope="col">Total</th></tr></thead><tbody>';
+    for (const s of ref.sources) {
+      h += `<tr><td>${esc(s.name)}</td>` + months.map(mo => `<td${pc(mo)}>${s.series.get(mo) ?? (months.indexOf(mo) < months.indexOf(s.first) ? '' : 0)}</td>`).join('') + `<td>${fmt(s.total)}</td></tr>`;
+    }
+    h += '<tr class="sum"><td>All services</td>' + months.map(mo => `<td${pc(mo)}>${ref.sources.reduce((a, s) => a + (s.series.get(mo) || 0), 0)}</td>`).join('') + `<td>${fmt(ref.grand)}</td></tr>`;
+    document.getElementById('src-table').innerHTML = h + '</tbody></table>';
+  }
+
+  function drawMixTable(ref, model) {
+    // Columns follow the other tab's category order. No row or column totals: hidden cells would make them misleading.
+    const cols = model.cats.map(c => c.name).filter(n => ref.sources.some(s => s.mix.some(c => c.service === n)));
+    let h = '<table><thead><tr><th scope="col">Referral source</th>' + cols.map(c => `<th scope="col">${esc(c)}</th>`).join('') + '</tr></thead><tbody>';
+    for (const s of ref.sources) {
+      h += `<tr><td>${esc(s.name)}</td>` + cols.map(c => {
+        const cell = s.mix.find(x => x.service === c);
+        if (!cell) return '<td>–</td>';
+        return cell.n === null ? '<td class="cell-hidden">hidden</td>' : `<td>${fmt(cell.n)}</td>`;
+      }).join('') + '</tr>';
+    }
+    h += '</tbody></table>';
+    document.getElementById('mix-table').innerHTML = h +
+      '<p class="hidden-note" style="padding:8px 10px;margin:0">All months combined. "hidden" = withheld for privacy, not zero. "–" = none in the dashboard\'s table.</p>';
+  }
+
+  // ---------- Tabs ----------
+  function setupTabs(onShow) {
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+    const select = (tab, focus) => {
+      tabs.forEach(t => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', on);
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+      });
+      if (focus) tab.focus();
+      history.replaceState(null, '', '#' + tab.dataset.hash);
+      onShow(tab.dataset.hash);
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => select(t));
+      t.addEventListener('keydown', e => {
+        const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (d) { e.preventDefault(); select(tabs[(i + d + tabs.length) % tabs.length], true); }
+        if (e.key === 'Home') { e.preventDefault(); select(tabs[0], true); }
+        if (e.key === 'End') { e.preventDefault(); select(tabs[tabs.length - 1], true); }
+      });
+    });
+    const start = tabs.find(t => '#' + t.dataset.hash === location.hash) || tabs[0];
+    select(start);
+    window.addEventListener('hashchange', () => {
+      const t = tabs.find(t => '#' + t.dataset.hash === location.hash);
+      if (t && t.getAttribute('aria-selected') !== 'true') select(t);
+    });
+  }
+
   // scripts/build_standalone.py embeds the CSVs here so the exported copy opens from disk.
   async function loadText(url) {
     const embedded = window.EMBEDDED_CSV;
@@ -719,18 +936,39 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
 
     const model = buildModel(rows);
     if (model.unavailable) console.warn(`${model.unavailable} monthly cells were not numbers and were left out.`);
+    const ref = buildReferralModel(rows, model);
     drawHeader(model);
-    drawMonthly(model);
-    const redrawSparks = drawGrid(model, resources);
     drawTable(model);
+    drawSourceBars(ref);
+    drawSourceTable(ref, model);
+    drawMixTable(ref, model);
 
-    let lastW = document.getElementById('monthly').clientWidth, raf = 0;
+    // SVG charts need a visible container to measure, so each tab draws when first shown and on resize.
+    const views = {
+      services: { box: 'monthly', w: -1,
+        init() { drawMonthly(model); this.redraw = drawGrid(model, resources); },
+        resize() { drawMonthly(model); this.redraw(); } },
+      referrals: { box: 'src-grid', w: -1,
+        init() { this.redraw = drawSourceGrid(ref, model); },
+        resize() { this.redraw(); } },
+    };
+    let current = null;
+    const show = key => {
+      current = views[key];
+      const w = document.getElementById(current.box).clientWidth;
+      if (!current.redraw) current.init(); else if (w !== current.w) current.resize();
+      current.w = w;
+    };
+    setupTabs(show);
+
+    let raf = 0;
     new ResizeObserver(() => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        const w = document.getElementById('monthly').clientWidth;
-        if (w === lastW) return;
-        lastW = w; drawMonthly(model); redrawSparks();
+        if (!current || !current.redraw) return;
+        const w = document.getElementById(current.box).clientWidth;
+        if (w === current.w) return;
+        current.w = w; current.resize();
       });
     }).observe(document.body);
   }
