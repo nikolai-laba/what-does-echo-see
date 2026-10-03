@@ -86,11 +86,11 @@ For Township Senior Services rows with no published price, the directory quotes 
 - **Left out:** the Oak Park-River Forest Community Foundation. It gives grants to nonprofits and doesn't serve residents directly.
 - **The ECHO website doesn't name any partner organizations**, so no row claims to be an ECHO partner.
 - **How details were gathered:** web pages were read with automated tools on 2026-10-03, and some team-supplied details are marked in `notes`. Before posting anything publicly, someone should spot-check the phone numbers and hours against the source pages.
-- **Some rows fit more than one category.** Each row has one `echo_category`, and the other categories it fits are listed in `notes`.
+- **Some services fit more than one category.** Following the trends page's rule in CLAUDE.md, each one gets a row per category (6 services, 7 extra rows), and `notes` says "Also listed under ...". Edit all copies of a service together.
 
 ## 6. Ideas for building this out
 
-1. **A column for extra categories.** Move the "Also fits ..." notes into a column such as `also_fits`, so the dashboard can show a service under more than one category without counting it twice.
+1. **One record per service.** Repeated rows can drift apart when one copy is edited. A `service_id` column, or one row with a list of categories, would let the page show a service in several panels while the details live in one place, and stop totals counting it twice.
 2. **A status column.** Add `status` (`confirmed`, `unconfirmed`, `conflict`, `possibly_stale`) so the dashboard can grey out or flag rows that need checking.
 3. **A freshness check.** Add a test that flags rows whose `checked_on` is more than about six months old, and rows that cite a flyer from an earlier fiscal year.
 4. **A link checker.** Add a script that requests each `source_url` and each link in `how_to_reach`, and reports broken links. It should run on demand, not in the regular checks, because some sites block automated requests.
