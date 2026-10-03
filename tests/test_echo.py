@@ -51,3 +51,35 @@ class CachedData(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class PageNumbers(unittest.TestCase):
+    """Figures site/index.html draws or annotates. A refreshed snapshot that changes them
+    should be checked against the page's wording (peak annotation, partial month, flags)."""
+
+    def setUp(self):
+        with (ROOT / 'data/echo-activity-oak-park.csv').open() as f:
+            self.rows = [r for r in csv.DictReader(f) if r['breakdown'] == 'service_by_month']
+
+    def test_monthly_totals_peak_and_partial_month(self):
+        totals = {}
+        for r in self.rows:
+            totals[r['month']] = totals.get(r['month'], 0) + int(r['count'])
+        months = sorted(totals)
+        self.assertEqual((months[0], months[-1]), ('2025-02', '2026-09'))
+        self.assertEqual(totals['2026-09'], 17)  # partial month, drawn separately
+        complete = {m: v for m, v in totals.items() if m != months[-1]}
+        self.assertEqual(max(complete, key=complete.get), '2025-09')  # the annotated peak
+        self.assertEqual(complete['2025-09'], 178)
+
+    def test_category_totals(self):
+        cats = {}
+        for r in self.rows:
+            # The source writes uncategorized services as the literal '(blank)'; the page shows 'Not categorized'.
+            name = 'Not categorized' if r['service'] in ('', '(blank)') else r['service']
+            cats[name] = cats.get(name, 0) + int(r['count'])
+        self.assertEqual(sum(cats.values()), 1598)
+        self.assertEqual(cats['Unhoused Resident'], 436)
+        self.assertEqual(cats['Not categorized'], 25)
+        top4 = sorted((v for k, v in cats.items() if k not in ('Other', 'Not categorized')), reverse=True)[:4]
+        self.assertEqual(top4, [436, 288, 269, 250])
