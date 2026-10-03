@@ -30,7 +30,7 @@ Tests (`python3 -m unittest discover -s tests`) pin the quoted figures and check
 
 ## How to use it
 
-- **Open it directly:** double-click `dist/echo-trends.html`. It's one file with all the data built in, so it needs no setup and can be emailed. `dist/` isn't committed, so build it first with `python3 scripts/build_standalone.py`, and rebuild after any data change.
+- **Open it directly:** download [`echo-trends.html`](https://github.com/nikolai-laba/what-does-echo-see/releases/download/hackathon-2026-10-03/echo-trends.html) from the [October 3, 2026 release](https://github.com/nikolai-laba/what-does-echo-see/releases/tag/hackathon-2026-10-03) and double-click it. It's one file with all the data built in, so it needs no setup and can be emailed. To rebuild it after a data change, run `python3 scripts/build_standalone.py`, which writes `dist/echo-trends.html` (`dist/` isn't committed).
 - **View the live version:** from the repo folder, run `python3 -m http.server` and open http://localhost:8000/site/. It reads the CSVs directly, so edits show up on refresh.
 - **Read the research:** [research/september-2025-spike.md](research/september-2025-spike.md) and [research/crime-and-echo.md](research/crime-and-echo.md).
 
