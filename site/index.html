@@ -247,8 +247,19 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
 .brow.hidden-cell .v { font-weight: 500; color: var(--ink-3); font-size: 13px; }
 .mix { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule); }
 .mix h4 { font-size: 14px; font-weight: 700; margin: 0 0 8px; }
-.mix .hidden-note { font-size: 13.5px; color: var(--ink-3); margin: 8px 0 0; }
+.hidden-note { font-size: 13.5px; color: var(--ink-3); margin: 8px 0 0; }
 .cell-hidden { color: var(--ink-3); font-style: italic; }
+
+/* Day and time tab */
+.sub-h { font-size: 19px; font-weight: 700; margin: 28px 0 4px; }
+.brow .hidden-tag { font-weight: 500; color: var(--ink-3); font-size: 12.5px; margin-left: 6px; white-space: nowrap; }
+#wd-bars .brow .v { text-align: left; }
+td.heat { position: relative; }
+td.heat.hi { color: #fff; }
+.brow .pct { font-weight: 500; color: var(--ink-2); }
+td.heat .cell-pct { display: block; font-size: 11.5px; opacity: .8; }
+td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(--ink-3); }
+#wd-bars .brow { grid-template-columns: minmax(0, 8em) 1fr 11em; }
 
 .error { background: var(--note-bg); color: var(--note); padding: 14px 16px; border-radius: 8px; margin: 24px 0; }
 .error code { color: var(--ink); }
@@ -262,6 +273,7 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
   <div class="wrap" role="tablist">
     <button class="tab" role="tab" id="tab-services" aria-controls="view-services" aria-selected="true" data-hash="services">By kind of need</button>
     <button class="tab" role="tab" id="tab-referrals" aria-controls="view-referrals" aria-selected="false" tabindex="-1" data-hash="referrals">By referral source</button>
+    <button class="tab" role="tab" id="tab-weekday" aria-controls="view-weekday" aria-selected="false" tabindex="-1" data-hash="weekday">By weekday</button>
   </div>
 </nav>
 
@@ -352,11 +364,22 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
   </section>
   </div>
 
+  <div id="view-weekday" role="tabpanel" aria-labelledby="tab-weekday" tabindex="0" hidden>
+  <section class="hero" aria-labelledby="wd-h">
+    <h2 class="section-h" id="wd-h">Which weekday services were logged</h2>
+    <p class="section-sub">ECHO works Monday to Friday, so these counts show the team's schedule, not when people needed help. They come from the dashboard's all-time table of weekday by kind of need, which has no months. Small cells, and the cells that would reveal them, are hidden for privacy. So each bar adds up only the cells that are shown and says how many are hidden, and each percentage is a share of the shown services, not of every service.</p>
+    <ul class="src-bars" id="wd-bars" aria-label="Services by weekday, shown cells only, with share of shown services"></ul>
+    <h3 class="sub-h">Weekday by kind of need</h3>
+    <p class="section-sub">Each cell shows the count and, below it, that day's share of the kind of need's shown services. Darker cells hold more services. "hidden" means withheld for privacy, not zero.</p>
+    <div class="table-scroll" id="wd-table"></div>
+  </section>
+  </div>
+
   <footer>
     <h2>Limits of this data</h2>
     <ul>
       <li>Counts only. The source has no names, ages, addresses, or notes, so nothing here can be mapped or traced to a person.</li>
-      <li>"By kind of need" uses the dashboard's month-by-service table. "By referral source" uses its month-by-referral-source table and its referral-source-by-service table. All three count the same services in different ways, so they are never added together.</li>
+      <li>"By kind of need" uses the dashboard's month-by-service table. "By referral source" uses its month-by-referral-source table and its referral-source-by-service table. "By weekday" uses its weekday-by-service table. These tables count the same services in different ways, so they are never added together.</li>
       <li>The team works weekdays, so the timing of these counts reflects its schedule, not when needs arise.</li>
       <li>Category labels have no official definitions. The descriptions here are pieced together from Village Board presentations and may not match how staff assign categories.</li>
     </ul>
@@ -885,6 +908,66 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
       '<p class="hidden-note" style="padding:8px 10px;margin:0">All months combined. "hidden" = withheld for privacy, not zero. "–" = none in the dashboard\'s table.</p>';
   }
 
+  // ---------- Weekday ----------
+  const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  // Cross-tab of one breakdown by kind of need. Hidden (suppressed) cells stay null: never estimated or back-solved.
+  function crossTab(rows, breakdown, key, order) {
+    const cells = new Map();
+    const keys = [];
+    for (const r of rows.filter(r => r.breakdown === breakdown)) {
+      if (!keys.includes(r[key])) keys.push(r[key]);
+      cells.set(`${r[key]}|${catName(r.service)}`, parseCount(r.count));
+    }
+    return { keys: order ? order.filter(k => keys.includes(k)) : keys, cells };
+  }
+
+  // Percentages are shares of SHOWN cells only. Hidden cells are never estimated, so a share's
+  // denominator is the sum of what is shown, and the page says so.
+  const pct = (n, d) => (d ? `${Math.round((n / d) * 100)}%` : '');
+
+  function drawWeekday(rows, model) {
+    const wd = crossTab(rows, 'service_by_weekday', 'weekday', WEEKDAYS);
+    const cats = model.cats.map(c => c.name).filter(c => wd.keys.some(d => wd.cells.has(`${d}|${c}`)));
+    const cell = (day, cat) => wd.cells.get(`${day}|${cat}`);
+
+    // Weekday bars: sum of shown cells, its share of all shown cells, and how many cells are hidden. Not full totals.
+    const sums = wd.keys.map(day => {
+      const vals = cats.map(c => cell(day, c)).filter(v => v !== undefined);
+      return { day, shown: vals.filter(v => v !== null).reduce((x, y) => x + y, 0),
+        hidden: vals.filter(v => v === null).length, any: vals.some(v => v !== null) };
+    });
+    const allShown = sums.reduce((x, s) => x + s.shown, 0);
+    const max = Math.max(1, ...sums.map(s => s.shown));
+    document.getElementById('wd-bars').innerHTML = sums.map(s => {
+      const tag = s.hidden ? `<span class="hidden-tag">+${s.hidden} hidden</span>` : '';
+      return s.any
+        ? `<li class="brow"><span class="lbl">${s.day}</span><span class="track"><span class="fill" style="width:${(s.shown / max) * 100}%"></span></span><span class="v">${fmt(s.shown)} <span class="pct">${pct(s.shown, allShown)}</span>${tag}</span></li>`
+        : `<li class="brow hidden-cell"><span class="lbl">${s.day}</span><span class="track"></span><span class="v">all hidden</span></li>`;
+    }).join('');
+
+    // Shaded table, one hue, light to dark. Each cell: count, then the day's share of that row's shown services.
+    // No row or column totals: hidden cells would make them misleading.
+    const cellMax = Math.max(1, ...[...wd.cells.values()].filter(v => v !== null));
+    let h = `<table><thead><tr><th scope="col">Kind of need</th>${wd.keys.map(d => `<th scope="col">${d.slice(0, 3)}</th>`).join('')}</tr></thead><tbody>`;
+    for (const c of cats) {
+      const rowShown = wd.keys.reduce((x, d) => x + (cell(d, c) ?? 0), 0);
+      // Say how many of the row's cells are hidden, so a share built on a few shown days is visible as such.
+      const rowHidden = wd.keys.filter(d => cell(d, c) === null).length;
+      const anyShown = wd.keys.some(d => typeof cell(d, c) === 'number');
+      const note = !rowHidden ? '' : `<span class="row-note">${anyShown ? `${rowHidden} hidden; shares of shown days only` : 'all hidden'}</span>`;
+      h += `<tr><td>${esc(c)}${note}</td>` + wd.keys.map(d => {
+        const v = cell(d, c);
+        if (v === undefined) return '<td>–</td>';
+        if (v === null) return '<td class="cell-hidden">hidden</td>';
+        const p = Math.round(8 + (v / cellMax) * 72);
+        return `<td class="heat${p >= 72 ? ' hi' : ''}" style="background:color-mix(in srgb, var(--data) ${p}%, transparent)">${fmt(v)}<span class="cell-pct">${pct(v, rowShown)}</span></td>`;
+      }).join('') + '</tr>';
+    }
+    document.getElementById('wd-table').innerHTML = h + '</tbody></table>' +
+      '<p class="hidden-note" style="padding:8px 10px;margin:0">All months combined. Percent = that day\'s share of the row\'s shown services. "hidden" = withheld for privacy, not zero. "–" = none in the dashboard\'s table.</p>';
+  }
+
   // ---------- Tabs ----------
   function setupTabs(onShow) {
     const tabs = [...document.querySelectorAll('[role="tab"]')];
@@ -956,6 +1039,7 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
     drawSourceBars(ref);
     drawSourceTable(ref, model);
     drawMixTable(ref, model);
+    drawWeekday(rows, model);
 
     // SVG charts need a visible container to measure, so each tab draws when first shown and on resize.
     const views = {
@@ -965,6 +1049,8 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
       referrals: { box: 'src-grid', w: -1,
         init() { this.redraw = drawSourceGrid(ref, model); },
         resize() { this.redraw(); } },
+      // HTML only, drawn once above; nothing to measure.
+      weekday: { box: 'wd-bars', w: -1, init() { this.redraw = () => {}; }, resize() {} },
     };
     let current = null;
     const show = key => {
