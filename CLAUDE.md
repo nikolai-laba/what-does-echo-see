@@ -15,11 +15,12 @@ python3 -m unittest discover -s tests -v                                   # all
 python3 -m unittest discover -s tests -k test_call_volume_files_match_the_board_deck   # one check
 python3 scripts/fetch_echo_activity.py -o /tmp/echo-live.csv                # refresh to a scratch path only
 python3 -m http.server                                                      # from the repo root, then open http://localhost:8000/site/
+python3 scripts/build_standalone.py                                         # single-file copy with data embedded: dist/echo-trends.html
 ```
 
 ## Trends page and resource directory
 
-`site/index.html` is one self-contained file (inline CSS and JS, hand-drawn SVG charts, no libraries). It fetches `../data/echo-activity-oak-park.csv` and `../resources/resource-directory.csv` at runtime, so it must be served over HTTP, not opened as a file. Each category panel has a "Who can help" list built from the directory.
+`site/index.html` is one self-contained file (inline CSS and JS, hand-drawn SVG charts, no libraries). It fetches `../data/echo-activity-oak-park.csv` and `../resources/resource-directory.csv` at runtime, so it must be served over HTTP, not opened as a file. To send it anywhere (judges, reviewers), run `scripts/build_standalone.py`: it embeds both CSVs into `dist/echo-trends.html`, which opens from disk. That copy is a snapshot, and `dist/` is not committed. The build inserts the data before the page's `<script>\n(() => {` line and fails if that line changes. Each category panel has a "Who can help" list built from the directory.
 
 The CSV is the contract between the page and the directory. When creating or editing `resources/resource-directory.csv`:
 

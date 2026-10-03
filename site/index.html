@@ -619,7 +619,13 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
       <span><b>${topShare}%</b> fall in four categories: ${top4.map(c => esc(c.name.toLowerCase())).join(', ').replace(/, ([^,]*)$/, ', and $1')}</span>`;
   }
 
+  // scripts/build_standalone.py embeds the CSVs here so the exported copy opens from disk.
   async function loadText(url) {
+    const embedded = window.EMBEDDED_CSV;
+    if (embedded) {
+      if (url in embedded) return embedded[url];
+      throw new Error(`${url} was not included in this copy`);
+    }
     const res = await fetch(url, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`${url} returned ${res.status}`);
     return res.text();
