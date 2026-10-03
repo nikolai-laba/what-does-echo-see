@@ -191,9 +191,11 @@ section.needs { margin: 48px 0 0; }
 .who dd { margin: 0; min-width: 0; }
 .who dd span { display: block; }
 .who a[href^="tel:"] { white-space: nowrap; }
-.who details { margin-top: 4px; font-size: 13.5px; color: var(--ink-2); }
-.who details summary { cursor: pointer; color: var(--link); width: max-content; }
-.who details p { margin: 4px 0 0; }
+.who details { margin-top: 6px; font-size: 13.5px; color: var(--ink-2); }
+.who details summary { cursor: pointer; color: var(--link); font-weight: 600; width: max-content; }
+.who details[open] summary { margin-bottom: 6px; }
+.who details[open] { padding: 8px 10px 10px; margin-left: -10px; margin-right: -10px; background: var(--surface); border-radius: 6px; }
+.who .checked { margin: 6px 0 0; font-size: 12.5px; color: var(--ink-3); }
 .who .more {
   margin-top: 12px; font: inherit; font-size: 14px; font-weight: 600; color: var(--link);
   background: none; border: 1px solid var(--rule); border-radius: 6px; padding: 5px 10px; cursor: pointer;
@@ -662,16 +664,28 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
     // Standalone web addresses are dropped: the title already links to the source page.
     const reach = (r.how_to_reach || '').split(';').map(x => x.trim())
       .filter(x => x && !/^https?:\/\/\S+$/.test(x));
-    const rows = [
+    const dlist = rows => {
+      rows = rows.filter(([, v]) => v);
+      return rows.length ? '<dl>' + rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('') + '</dl>' : '';
+    };
+    // Always visible: who it's for and what it costs. "Confirm at <phone>" is dropped here;
+    // the phone is under Contact and hours.
+    const brief = v => v.trim()
+      .replace(/^Not published online;?\s*confirm:?\s*.*$/i, 'Not published online')
+      .replace(/[;,]?\s*confirm:?\s*(?:at\s*)?(?:1-)?\(?\d{3}\)?[-.\s]\d{3}-\d{4}(?:\s*(?:x|ext\.?)\s*\d+)?\s*$/i, '');
+    const summary = dlist([
+      ['For', r.who_is_eligible && linkify(brief(r.who_is_eligible))],
+      ['Cost', r.cost && linkify(brief(r.cost))],
+    ]);
+    // Behind a toggle: how to reach them, hours, and the team's notes.
+    const detailRows = dlist([
       ['Contact', reach.map(x => `<span>${linkify(x)}</span>`).join('')],
       ['Hours', r.hours && linkify(tidy(r.hours))],
-      ['For', r.who_is_eligible && linkify(tidy(r.who_is_eligible))],
-      ['Cost', r.cost && linkify(tidy(r.cost))],
-    ].filter(([, v]) => v);
-    const dl = rows.length ? '<dl>' + rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('') + '</dl>' : '';
-    const notes = r.notes ? `<details><summary>Notes</summary><p>${linkify(r.notes)}</p></details>` : '';
-    const checked = r.checked_on ? ` title="Checked ${esc(r.checked_on)}"` : '';
-    return `<li${extra ? ' class="extra"' : ''}${checked}>${head}${prov}${r.what_they_offer ? `<p class="offer">${linkify(r.what_they_offer)}</p>` : ''}${dl}${notes}</li>`;
+      ['Notes', r.notes && linkify(r.notes)],
+    ]);
+    const checkedLine = r.checked_on ? `<p class="checked">Details checked ${esc(r.checked_on)}</p>` : '';
+    const details = detailRows ? `<details><summary>Contact and hours</summary>${detailRows}${checkedLine}</details>` : '';
+    return `<li${extra ? ' class="extra"' : ''}>${head}${prov}${r.what_they_offer ? `<p class="offer">${linkify(r.what_they_offer)}</p>` : ''}${summary}${details}</li>`;
   }
 
   function resourceList(cat, resources) {
