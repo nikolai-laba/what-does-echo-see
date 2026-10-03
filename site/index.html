@@ -179,11 +179,26 @@ section.needs { margin: 48px 0 0; }
 .yoy b { color: var(--ink); }
 .flag { font-size: 13.5px; color: var(--note); background: var(--note-bg); border-radius: 6px; padding: 6px 8px; margin: 10px 0 0; }
 .who { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule); }
-.who h4 { font-size: 14px; font-weight: 700; margin: 0 0 6px; }
-.who ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-.who li { font-size: 14px; line-height: 1.45; }
-.who .prov { font-weight: 600; }
-.who .meta { color: var(--ink-2); }
+.who h4 { font-size: 14px; font-weight: 700; margin: 0 0 8px; }
+.who ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
+.who li { font-size: 14px; line-height: 1.45; min-width: 0; overflow-wrap: anywhere; }
+.who ul:not(.open) li.extra { display: none; }
+.who .prog { font-weight: 600; }
+.who .prov { color: var(--ink-3); font-size: 13px; }
+.who .offer { margin: 3px 0 4px; }
+.who dl { display: grid; grid-template-columns: 4.6em 1fr; gap: 1px 8px; margin: 0; color: var(--ink-2); font-size: 13.5px; }
+.who dt { color: var(--ink-3); }
+.who dd { margin: 0; min-width: 0; }
+.who dd span { display: block; }
+.who a[href^="tel:"] { white-space: nowrap; }
+.who details { margin-top: 4px; font-size: 13.5px; color: var(--ink-2); }
+.who details summary { cursor: pointer; color: var(--link); width: max-content; }
+.who details p { margin: 4px 0 0; }
+.who .more {
+  margin-top: 12px; font: inherit; font-size: 14px; font-weight: 600; color: var(--link);
+  background: none; border: 1px solid var(--rule); border-radius: 6px; padding: 5px 10px; cursor: pointer;
+}
+.who .more:hover { border-color: var(--link); }
 .who .empty { font-size: 14px; color: var(--ink-3); margin: 0; }
 
 /* Table view */
@@ -541,6 +556,49 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
     hit.addEventListener('pointerleave', () => { cross.setAttribute('visibility', 'hidden'); dot.setAttribute('visibility', 'hidden'); tip.hide(); });
   }
 
+  // ---------- Resource directory ----------
+  const SHOWN_PER_CATEGORY = 3;
+  const URL_RE = /https?:\/\/[^\s;,)]+[^\s;,).]/g;
+  const PHONE_RE = /(?:1-)?\(?\b\d{3}\)?[-.\s]\d{3}-\d{4}\b(?:\s*(?:x|ext\.?)\s*\d+)?/g;
+  const EMAIL_RE = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
+  const domain = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return 'link'; } };
+
+  // Escape a field, then turn phone numbers, emails, and inline URLs into links.
+  function linkify(text) {
+    const tokens = [];
+    const hold = html => `\u0000${tokens.push(html) - 1}\u0000`;
+    let t = String(text)
+      .replace(URL_RE, u => hold(`<a href="${esc(u)}">${esc(domain(u))}</a>`))
+      .replace(EMAIL_RE, e => hold(`<a href="mailto:${esc(e)}">${esc(e)}</a>`))
+      .replace(PHONE_RE, ph => {
+        const ext = ph.match(/(?:x|ext\.?)\s*(\d+)$/);
+        const digits = ph.replace(/(?:x|ext\.?)\s*\d+$/, '').replace(/\D/g, '');
+        return hold(`<a href="tel:${digits}${ext ? ',' + ext[1] : ''}">${esc(ph)}</a>`);
+      });
+    return esc(t).replace(/\u0000(\d+)\u0000/g, (_, i) => tokens[i]);
+  }
+  // The directory's wording for unpublished details, shortened for display.
+  const tidy = v => v.trim().replace(/^Not published online;?\s*confirm:?\s*/i, 'Not published; confirm at ');
+
+  function resourceItem(r, extra) {
+    const title = r.program || r.provider;
+    const head = r.source_url ? `<a class="prog" href="${esc(r.source_url)}">${esc(title)}</a>` : `<span class="prog">${esc(title)}</span>`;
+    const prov = r.program && r.provider ? `<div class="prov">${esc(r.provider)}</div>` : '';
+    // Standalone web addresses are dropped: the title already links to the source page.
+    const reach = (r.how_to_reach || '').split(';').map(x => x.trim())
+      .filter(x => x && !/^https?:\/\/\S+$/.test(x));
+    const rows = [
+      ['Contact', reach.map(x => `<span>${linkify(x)}</span>`).join('')],
+      ['Hours', r.hours && linkify(tidy(r.hours))],
+      ['For', r.who_is_eligible && linkify(tidy(r.who_is_eligible))],
+      ['Cost', r.cost && linkify(tidy(r.cost))],
+    ].filter(([, v]) => v);
+    const dl = rows.length ? '<dl>' + rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('') + '</dl>' : '';
+    const notes = r.notes ? `<details><summary>Notes</summary><p>${linkify(r.notes)}</p></details>` : '';
+    const checked = r.checked_on ? ` title="Checked ${esc(r.checked_on)}"` : '';
+    return `<li${extra ? ' class="extra"' : ''}${checked}>${head}${prov}${r.what_they_offer ? `<p class="offer">${linkify(r.what_they_offer)}</p>` : ''}${dl}${notes}</li>`;
+  }
+
   function resourceList(cat, resources) {
     if (NO_DIRECTORY.has(cat.name)) return '';
     let body;
@@ -548,17 +606,25 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
       body = '<p class="empty">Resource directory in progress.</p>';
     } else {
       const list = resources.filter(r => r.echo_category === cat.name);
-      body = list.length
-        ? '<ul>' + list.map(r => {
-            const name = [r.provider, r.program].filter(Boolean).map(esc).join(': ');
-            const title = r.source_url ? `<a href="${esc(r.source_url)}">${name}</a>` : name;
-            const meta = [r.how_to_reach, r.hours, r.cost].filter(Boolean).map(esc).join('. ');
-            return `<li><span class="prov">${title}</span>${r.what_they_offer ? `<br>${esc(r.what_they_offer)}` : ''}${meta ? `<br><span class="meta">${meta}</span>` : ''}</li>`;
-          }).join('') + '</ul>'
-        : '<p class="empty">No matching services listed yet.</p>';
+      if (!list.length) body = '<p class="empty">No matching services listed yet.</p>';
+      else {
+        body = '<ul>' + list.map((r, i) => resourceItem(r, i >= SHOWN_PER_CATEGORY)).join('') + '</ul>';
+        if (list.length > SHOWN_PER_CATEGORY)
+          body += `<button type="button" class="more" aria-expanded="false" data-all="Show all ${list.length}">Show all ${list.length}</button>`;
+      }
     }
     return `<div class="who"><h4>Who can help</h4>${body}</div>`;
   }
+
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.who .more');
+    if (!btn) return;
+    const ul = btn.previousElementSibling;
+    const open = ul.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open);
+    btn.textContent = open ? 'Show fewer' : btn.dataset.all;
+    if (!open) btn.closest('.who').scrollIntoView({ block: 'nearest' });
+  });
 
   function drawGrid(model, resources) {
     const grid = document.getElementById('grid');

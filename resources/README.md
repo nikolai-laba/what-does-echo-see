@@ -30,7 +30,8 @@ The trends page (`site/index.html`) reads this file and lists each service under
 - **File name:** exactly `resource-directory.csv`, in this folder.
 - **Category names:** copy them exactly from the table above, including capitals and the slash in Youth/Family Services. A row with a typo won't appear. If a service helps with two categories, give it two rows.
 - **Commas:** if a field has a comma in it, like `Rental help, utilities`, wrap the whole field in double quotes. Spreadsheet apps do this for you when you export as CSV.
-- **What's displayed:** provider, program, what they offer, how to reach, hours, and cost, with the name linked to the source page. Eligibility, checked-on date, and notes are saved but not shown yet.
+- **What's displayed:** every column except the category. The program name links to the source page, and notes sit behind a "Notes" toggle. Each category shows its **first three rows** and hides the rest behind a "Show all" button, so put the most useful services first.
+- **How to reach:** separate phone, email, address, and website with semicolons. Phone numbers become tap-to-call links, and plain web addresses are hidden because the name already links to the source.
 - **To preview:** from the repo folder, run `python3 -m http.server` and open http://localhost:8000/site/.
 
 Open questions, source conflicts, unpublished details and ideas for building on the directory are logged in [directory-backlog.md](directory-backlog.md).
