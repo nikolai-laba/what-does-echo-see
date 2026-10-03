@@ -186,16 +186,7 @@ section.needs { margin: 48px 0 0; }
 .who .prog { font-weight: 600; }
 .who .prov { color: var(--ink-3); font-size: 13px; }
 .who .offer { margin: 3px 0 4px; }
-.who dl { display: grid; grid-template-columns: 4.6em 1fr; gap: 1px 8px; margin: 0; color: var(--ink-2); font-size: 13.5px; }
-.who dt { color: var(--ink-3); }
-.who dd { margin: 0; min-width: 0; }
-.who dd span { display: block; }
-.who a[href^="tel:"] { white-space: nowrap; }
-.who details { margin-top: 6px; font-size: 13.5px; color: var(--ink-2); }
-.who details summary { cursor: pointer; color: var(--link); font-weight: 600; width: max-content; }
-.who details[open] summary { margin-bottom: 6px; }
-.who details[open] { padding: 8px 10px 10px; margin-left: -10px; margin-right: -10px; background: var(--surface); border-radius: 6px; }
-.who .checked { margin: 6px 0 0; font-size: 12.5px; color: var(--ink-3); }
+.who .who-more { margin: 10px 0 0; font-size: 13.5px; color: var(--ink-3); }
 .who .more {
   margin-top: 12px; font: inherit; font-size: 14px; font-weight: 600; color: var(--link);
   background: none; border: 1px solid var(--rule); border-radius: 6px; padding: 5px 10px; cursor: pointer;
@@ -801,29 +792,18 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
     rows = rows.filter(([, v]) => v);
     return rows.length ? '<dl>' + rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('') + '</dl>' : '';
   };
-  // Always-visible lines drop a trailing "confirm: <phone>"; the phone is under Contact and hours.
+  // Always-visible lines drop a trailing "confirm: <phone>"; the phone is already in the Contact line.
   const brief = v => v.trim()
     .replace(/^Not published online;?\s*confirm:?\s*.*$/i, 'Not published online')
     .replace(/[;,]?\s*confirm:?\s*(?:at\s*)?(?:1-)?\(?\d{3}\)?[-.\s]\d{3}-\d{4}(?:\s*(?:x|ext\.?)\s*\d+)?\s*$/i, '');
 
+  // Brief entry: service link, provider, and what it offers. Contact, hours, eligibility and
+  // cost live on the Find help tab's cards.
   function resourceItem(r, extra) {
     const title = r.program || r.provider;
     const head = r.source_url ? `<a class="prog" href="${esc(r.source_url)}">${esc(title)}</a>` : `<span class="prog">${esc(title)}</span>`;
     const prov = r.program && r.provider ? `<div class="prov">${esc(r.provider)}</div>` : '';
-    const reach = reachParts(r);
-    const summary = dlist([
-      ['For', r.who_is_eligible && linkify(brief(r.who_is_eligible))],
-      ['Cost', r.cost && linkify(brief(r.cost))],
-    ]);
-    // Behind a toggle: how to reach them, hours, and the team's notes.
-    const detailRows = dlist([
-      ['Contact', reach.map(x => `<span>${linkify(x)}</span>`).join('')],
-      ['Hours', r.hours && linkify(tidy(r.hours))],
-      ['Notes', r.notes && linkify(r.notes)],
-    ]);
-    const checkedLine = r.checked_on ? `<p class="checked">Details checked ${esc(r.checked_on)}</p>` : '';
-    const details = detailRows ? `<details><summary>Contact and hours</summary>${detailRows}${checkedLine}</details>` : '';
-    return `<li${extra ? ' class="extra"' : ''}>${head}${prov}${r.what_they_offer ? `<p class="offer">${linkify(r.what_they_offer)}</p>` : ''}${summary}${details}</li>`;
+    return `<li${extra ? ' class="extra"' : ''}>${head}${prov}${r.what_they_offer ? `<p class="offer">${linkify(r.what_they_offer)}</p>` : ''}</li>`;
   }
 
   function resourceList(cat, resources) {
@@ -840,7 +820,9 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
           body += `<button type="button" class="more" aria-expanded="false" data-all="Show all ${list.length}">Show all ${list.length}</button>`;
       }
     }
-    return `<div class="who"><h4>Who can help</h4>${body}</div>`;
+    const pointer = resources && resources.some(r => r.echo_category === cat.name)
+      ? '<p class="who-more">Contact details, hours, and costs are in <a href="#help">Find help</a>.</p>' : '';
+    return `<div class="who"><h4>Who can help</h4>${body}${pointer}</div>`;
   }
 
   document.addEventListener('click', e => {
