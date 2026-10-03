@@ -8,6 +8,7 @@ This folder is for the team's main deliverable: one row per local service, match
 | `provider` | Organization name |
 | `program` | The specific program or service |
 | `what_they_offer` | One plain-language sentence |
+| `when_to_use` | One sentence on when someone should use it, written only from the row's own details (offer, eligibility, hours, notes) |
 | `who_is_eligible` | Age, residency, income, or other limits |
 | `hours` | As published |
 | `how_to_reach` | Phone, walk-in address, or website |

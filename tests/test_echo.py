@@ -57,7 +57,7 @@ class CachedData(unittest.TestCase):
             reader = csv.DictReader(f)
             rows = list(reader)
         self.assertEqual(reader.fieldnames, ['echo_category', 'provider', 'program', 'what_they_offer',
-                                             'who_is_eligible', 'hours', 'how_to_reach', 'cost',
+                                             'when_to_use', 'who_is_eligible', 'hours', 'how_to_reach', 'cost',
                                              'source_url', 'checked_on', 'notes'])
         categories = {'Unhoused Resident', 'Behavioral Health', 'Senior Services', 'Housing',
                       'Youth/Family Services', 'Financial Support', 'Domestic Violence',

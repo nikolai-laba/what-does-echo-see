@@ -250,6 +250,54 @@ footer p { margin: 0 0 8px; max-width: 80ch; }
 .hidden-note { font-size: 13.5px; color: var(--ink-3); margin: 8px 0 0; }
 .cell-hidden { color: var(--ink-3); font-style: italic; }
 
+/* Find help tab */
+.help-urgent { max-width: 72ch; font-size: 15px; margin: 4px 0 18px; }
+.help-urgent b, .help-urgent a { color: inherit; }
+.finder { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; margin: 0 0 8px; }
+.finder .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.finder .field.grow { flex: 1 1 280px; }
+.finder label { font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.finder input, .finder select {
+  font: inherit; font-size: 16px; color: var(--ink); background: var(--surface-raised);
+  border: 1px solid var(--rule); border-radius: 8px; padding: 9px 12px; min-height: 44px; width: 100%;
+}
+.finder select { min-width: 13em; }
+.finder input:focus-visible, .finder select:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; border-color: var(--focus); }
+.help-count { font-size: 14px; color: var(--ink-2); margin: 4px 0 14px; }
+.rcards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); }
+.rcard { background: var(--surface-raised); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 16px 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0; overflow-wrap: anywhere; font-size: 14.5px; }
+.rcard .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.rcard .chip { font-size: 12px; font-weight: 600; color: var(--ink-2); background: var(--surface); border: 1px solid var(--rule); border-radius: 999px; padding: 1px 8px; }
+.rcard h3 { font-size: 17px; line-height: 1.3; margin: 2px 0 0; }
+.rcard h3 a { text-decoration: none; }
+.rcard { scroll-margin-top: 64px; }
+.rcard:focus { outline: none; }
+.rcard.flash { animation: card-flash 2.4s ease-out; }
+@keyframes card-flash { 0%, 40% { box-shadow: 0 0 0 3px var(--focus); } 100% { box-shadow: 0 0 0 3px transparent; } }
+@media (prefers-reduced-motion: reduce) { .rcard.flash { animation: none; box-shadow: 0 0 0 3px var(--focus); } }
+.rcard h3 a.anchor { color: var(--ink-3); font-weight: 500; padding: 0 2px; opacity: .55; white-space: nowrap; }
+.rcard:hover h3 a.anchor, .rcard h3 a.anchor:focus-visible { opacity: 1; }
+.rcard h3 a.anchor[data-copied]::after { content: " link copied"; font-size: 12px; color: var(--ink-2); }
+.rcard h3 a:hover { text-decoration: underline; }
+.rcard .prov { color: var(--ink-3); font-size: 13.5px; margin: -4px 0 0; }
+.rcard .offer { margin: 0; }
+.rcard .when { margin: 0; padding: 8px 10px; background: var(--surface); border-radius: 6px; }
+.rcard .when b { display: block; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-3); margin-bottom: 2px; }
+.rcard dl { display: grid; grid-template-columns: 4.6em 1fr; gap: 1px 8px; margin: 0; color: var(--ink-2); font-size: 13.5px; }
+.rcard dt { color: var(--ink-3); }
+.rcard dd { margin: 0; min-width: 0; }
+.rcard dd span { display: block; }
+.rcard a[href^="tel:"] { white-space: nowrap; }
+.rcard .site { margin: 2px 0 0; font-size: 14px; font-weight: 600; }
+.rcard details { font-size: 13.5px; color: var(--ink-2); margin-top: auto; padding-top: 4px; }
+.rcard details summary { cursor: pointer; color: var(--link); font-weight: 600; width: max-content; }
+.rcard details[open] summary { margin-bottom: 6px; }
+.rcard .checked { margin: 6px 0 0; font-size: 12.5px; color: var(--ink-3); }
+.rcard .notes { margin: 0; }
+.rcard dl dd:first-of-type a[href^="tel:"] { font-weight: 600; }
+.help-empty { padding: 24px 0; color: var(--ink-2); }
+.linklike { font: inherit; color: var(--link); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+
 /* Community context tab */
 .ctx-callout { max-width: 72ch; font-size: 15px; margin: 4px 0 8px; }
 .ctx-callout b { color: inherit; }
@@ -285,6 +333,7 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
     <button class="tab" role="tab" id="tab-services" aria-controls="view-services" aria-selected="true" data-hash="services">By kind of need</button>
     <button class="tab" role="tab" id="tab-referrals" aria-controls="view-referrals" aria-selected="false" tabindex="-1" data-hash="referrals">By referral source</button>
     <button class="tab" role="tab" id="tab-weekday" aria-controls="view-weekday" aria-selected="false" tabindex="-1" data-hash="weekday">By weekday</button>
+    <button class="tab" role="tab" id="tab-help" aria-controls="view-help" aria-selected="false" tabindex="-1" data-hash="help">Find help</button>
     <button class="tab" role="tab" id="tab-context" aria-controls="view-context" aria-selected="false" tabindex="-1" data-hash="context">Community context</button>
   </div>
 </nav>
@@ -384,6 +433,29 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
     <h3 class="sub-h">Weekday by kind of need</h3>
     <p class="section-sub">Each cell shows the count and, below it, that day's share of the kind of need's shown services. Darker cells hold more services. "hidden" means withheld for privacy, not zero.</p>
     <div class="table-scroll" id="wd-table"></div>
+  </section>
+  </div>
+
+  <div id="view-help" role="tabpanel" aria-labelledby="tab-help" tabindex="0" hidden>
+  <section class="hero" aria-labelledby="help-h">
+    <h2 class="section-h" id="help-h">Find local help</h2>
+    <p class="section-sub">Public and nonprofit services that match the kinds of need ECHO sees. Search by need, place or organization, or pick a category. Details come from each provider's own pages, on the date shown on each card. Call to confirm before you go.</p>
+    <p class="flag help-urgent"><b>In an emergency, call 911.</b> For a mental health crisis, call or text <a href="tel:988">988</a>, or call Thrive's 24/7 crisis team at <a href="tel:7083837500,1">708-383-7500, option 1</a>.</p>
+    <form class="finder" role="search" onsubmit="return false">
+      <div class="field grow">
+        <label for="help-q">Search</label>
+        <input type="search" id="help-q" placeholder="Try food, rent, seniors, Spanish, 24/7" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="help-cat">Kind of need</label>
+        <select id="help-cat"><option value="">All kinds of need</option></select>
+      </div>
+    </form>
+    <p class="help-count" id="help-count" role="status" aria-live="polite"></p>
+    <div class="rcards" id="help-cards"></div>
+    <div class="help-empty" id="help-empty" hidden>
+      <p>No services match. Try a shorter search, or <button type="button" class="linklike" id="help-clear">clear the filters</button>.</p>
+    </div>
   </section>
   </div>
 
@@ -722,22 +794,23 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
   // The directory's wording for unpublished details, shortened for display.
   const tidy = v => v.trim().replace(/^Not published online;?\s*confirm:?\s*/i, 'Not published; confirm at ');
 
+  // Standalone web addresses are dropped from contact lines: the title already links to the source page.
+  const reachParts = r => (r.how_to_reach || '').split(';').map(x => x.trim())
+    .filter(x => x && !/^https?:\/\/\S+$/.test(x));
+  const dlist = rows => {
+    rows = rows.filter(([, v]) => v);
+    return rows.length ? '<dl>' + rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('') + '</dl>' : '';
+  };
+  // Always-visible lines drop a trailing "confirm: <phone>"; the phone is under Contact and hours.
+  const brief = v => v.trim()
+    .replace(/^Not published online;?\s*confirm:?\s*.*$/i, 'Not published online')
+    .replace(/[;,]?\s*confirm:?\s*(?:at\s*)?(?:1-)?\(?\d{3}\)?[-.\s]\d{3}-\d{4}(?:\s*(?:x|ext\.?)\s*\d+)?\s*$/i, '');
+
   function resourceItem(r, extra) {
     const title = r.program || r.provider;
     const head = r.source_url ? `<a class="prog" href="${esc(r.source_url)}">${esc(title)}</a>` : `<span class="prog">${esc(title)}</span>`;
     const prov = r.program && r.provider ? `<div class="prov">${esc(r.provider)}</div>` : '';
-    // Standalone web addresses are dropped: the title already links to the source page.
-    const reach = (r.how_to_reach || '').split(';').map(x => x.trim())
-      .filter(x => x && !/^https?:\/\/\S+$/.test(x));
-    const dlist = rows => {
-      rows = rows.filter(([, v]) => v);
-      return rows.length ? '<dl>' + rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('') + '</dl>' : '';
-    };
-    // Always visible: who it's for and what it costs. "Confirm at <phone>" is dropped here;
-    // the phone is under Contact and hours.
-    const brief = v => v.trim()
-      .replace(/^Not published online;?\s*confirm:?\s*.*$/i, 'Not published online')
-      .replace(/[;,]?\s*confirm:?\s*(?:at\s*)?(?:1-)?\(?\d{3}\)?[-.\s]\d{3}-\d{4}(?:\s*(?:x|ext\.?)\s*\d+)?\s*$/i, '');
+    const reach = reachParts(r);
     const summary = dlist([
       ['For', r.who_is_eligible && linkify(brief(r.who_is_eligible))],
       ['Cost', r.cost && linkify(brief(r.cost))],
@@ -1010,6 +1083,115 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
       '<p class="hidden-note" style="padding:8px 10px;margin:0">All months combined. Percent = that day\'s share of the row\'s shown services. "hidden" = withheld for privacy, not zero. "–" = none in the dashboard\'s table.</p>';
   }
 
+  // ---------- Find help: searchable directory ----------
+  // One card per service: rows repeated across categories are merged, keeping every category.
+  function buildServices(resources) {
+    const byKey = new Map();
+    for (const r of resources) {
+      const key = `${r.provider}|${r.program}`;
+      if (!byKey.has(key)) byKey.set(key, { r, cats: [] });
+      if (!byKey.get(key).cats.includes(r.echo_category)) byKey.get(key).cats.push(r.echo_category);
+    }
+    const used = new Set();
+    return [...byKey.values()].map(s => {
+      let id = 'svc-' + slug(`${s.r.provider} ${s.r.program}`), n = 2;
+      while (used.has(id)) id = `${id.replace(/-\d+$/, '')}-${n++}`;
+      used.add(id);
+      return { ...s, id };
+    }).map(s => ({ ...s,
+      text: [s.r.provider, s.r.program, s.r.what_they_offer, s.r.when_to_use, s.r.who_is_eligible, s.r.cost,
+        s.r.hours, s.r.how_to_reach, s.r.notes, ...s.cats].join(' ').toLowerCase() }));
+  }
+
+  // Stable card ids from provider and program, so other pages can link to #svc-….
+  const SERVICE_PREFIX = '#svc-';
+  const slug = t => t.toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 90).replace(/-+$/, '');
+  let revealService = () => {};
+
+  function resourceCard(s) {
+    const r = s.r, title = r.program || r.provider;
+    // The provider's own web address from the contact details, else the page the details came from.
+    const site = ((r.how_to_reach || '').match(URL_RE) || [])[0] || r.source_url;
+    const head = site ? `<a href="${esc(site)}">${esc(title)}</a>` : esc(title);
+    // Contact (phone, address, email) and hours stay visible for a quick response; only notes are folded.
+    const summary = dlist([
+      ['Contact', reachParts(r).map(x => `<span>${linkify(x)}</span>`).join('')],
+      ['Hours', r.hours && linkify(tidy(r.hours))],
+      ['For', r.who_is_eligible && linkify(brief(r.who_is_eligible))],
+      ['Cost', r.cost && linkify(brief(r.cost))],
+    ]);
+    const checked = r.checked_on ? `<p class="checked">Details checked ${esc(r.checked_on)}</p>` : '';
+    return `<article class="rcard" id="${s.id}" tabindex="-1">
+      <div class="chips">${s.cats.map(c => `<span class="chip">${esc(c)}</span>`).join('')}</div>
+      <h3>${head} <a class="anchor" href="#${s.id}" aria-label="Link to ${esc(title)}" title="Copy link to this service">#</a></h3>
+      ${r.program && r.provider ? `<p class="prov">${esc(r.provider)}</p>` : ''}
+      ${r.what_they_offer ? `<p class="offer">${linkify(r.what_they_offer)}</p>` : ''}
+      ${r.when_to_use ? `<p class="when"><b>When to use it</b>${linkify(r.when_to_use)}</p>` : ''}
+      ${summary}
+      ${site ? `<p class="site"><a href="${esc(site)}">${/\.pdf(?:$|[?#])/i.test(site) ? `View listing (${esc(domain(site))}, PDF)` : `Visit ${esc(domain(site))}`}</a></p>` : ''}
+      ${r.notes ? `<details><summary>Notes</summary><p class="notes">${linkify(r.notes)}</p>${checked}</details>` : checked}
+    </article>`;
+  }
+
+  // Everyday words the directory phrases differently. Each search word matches any of its alternatives.
+  const SYNONYMS = [
+    ['senior', 'seniors', 'elderly', 'older', 'aging', '60+'],
+    ['kid', 'kids', 'child', 'children', 'youth', 'teen', 'teens'],
+    ['homeless', 'homelessness', 'unhoused', 'shelter'],
+    ['money', 'cash', 'financial', 'bills'],
+    ['doctor', 'medical', 'clinic', 'dental', 'dentist'],
+    ['counseling', 'counselling', 'therapy', 'mental health'],
+    ['addiction', 'substance', 'drugs', 'alcohol', 'overdose'],
+    ['abuse', 'violence', 'domestic'],
+  ];
+  // Match at the start of a word, so "rent" finds rent but not parent.
+  const wordStart = t => new RegExp('(^|[^a-z0-9])' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  function searchAlternatives(word) {
+    const stem = word.length > 4 && word.endsWith('s') ? word.slice(0, -1) : word;
+    const group = SYNONYMS.find(g => g.includes(word) || g.includes(stem));
+    return [...new Set([word, stem, ...(group || [])])];
+  }
+
+  function setupFinder(resources, model) {
+    const cards = document.getElementById('help-cards');
+    if (!resources) { cards.innerHTML = '<p class="empty">The resource directory could not be loaded.</p>'; return; }
+    const services = buildServices(resources);
+    const q = document.getElementById('help-q'), sel = document.getElementById('help-cat');
+    const count = document.getElementById('help-count'), empty = document.getElementById('help-empty');
+    // Categories in the order the first tab uses, limited to those with services.
+    const cats = model.cats.map(c => c.name).filter(n => services.some(s => s.cats.includes(n)));
+    sel.innerHTML += cats.map(c => `<option value="${esc(c)}">${esc(c)} (${services.filter(s => s.cats.includes(c)).length})</option>`).join('');
+    const render = () => {
+      const terms = q.value.toLowerCase().split(/\s+/).filter(Boolean).map(searchAlternatives);
+      const cat = sel.value;
+      const list = services.filter(s => (!cat || s.cats.includes(cat)) && terms.every(alts => alts.some(t => wordStart(t).test(s.text))));
+      cards.innerHTML = list.map(resourceCard).join('');
+      empty.hidden = list.length > 0;
+      count.textContent = `${list.length} of ${services.length} services` + (cat ? ` for ${cat}` : '') + (terms.length ? ` matching "${q.value.trim()}"` : '');
+    };
+    // Show, scroll to and highlight a card, clearing filters that would hide it.
+    revealService = id => {
+      if (!services.some(s => s.id === id)) return;
+      if (!document.getElementById(id)) { q.value = ''; sel.value = ''; render(); }
+      const el = document.getElementById(id);
+      el.scrollIntoView({ block: 'start' });
+      el.focus({ preventScroll: true });
+      el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+    };
+    // The # link also copies the full address, for pasting into other pages.
+    cards.addEventListener('click', e => {
+      const a = e.target.closest('a.anchor');
+      if (!a) return;
+      const url = location.href.split('#')[0] + a.getAttribute('href');
+      try { navigator.clipboard.writeText(url).then(() => { a.dataset.copied = ''; setTimeout(() => delete a.dataset.copied, 1500); }, () => {}); } catch {}
+    });
+    q.addEventListener('input', render);
+    sel.addEventListener('change', render);
+    document.getElementById('help-clear').addEventListener('click', () => { q.value = ''; sel.value = ''; render(); q.focus(); });
+    render();
+  }
+
   // ---------- Community context (not ECHO data) ----------
   const ECHO_START = '2025-02';
   const CRIME_CATS = ['All', 'Person', 'Property', 'Society'];
@@ -1119,7 +1301,10 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
   // ---------- Tabs ----------
   function setupTabs(onShow) {
     const tabs = [...document.querySelectorAll('[role="tab"]')];
-    const select = (tab, focus) => {
+    // A card link (#svc-…) belongs to the Find help tab.
+    const tabFor = h => tabs.find(t => '#' + t.dataset.hash === h)
+      || (h.startsWith(SERVICE_PREFIX) ? tabs.find(t => t.dataset.hash === 'help') : null);
+    const select = (tab, focus, keepHash) => {
       tabs.forEach(t => {
         const on = t === tab;
         t.setAttribute('aria-selected', on);
@@ -1127,7 +1312,7 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
         document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
       });
       if (focus) tab.focus();
-      history.replaceState(null, '', '#' + tab.dataset.hash);
+      if (!keepHash) history.replaceState(null, '', '#' + tab.dataset.hash);
       onShow(tab.dataset.hash);
     };
     tabs.forEach((t, i) => {
@@ -1139,11 +1324,14 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
         if (e.key === 'End') { e.preventDefault(); select(tabs[tabs.length - 1], true); }
       });
     });
-    const start = tabs.find(t => '#' + t.dataset.hash === location.hash) || tabs[0];
-    select(start);
+    const card = () => location.hash.startsWith(SERVICE_PREFIX) && revealService(location.hash.slice(1));
+    const start = tabFor(location.hash);
+    select(start || tabs[0], false, !!start);
+    card();
     window.addEventListener('hashchange', () => {
-      const t = tabs.find(t => '#' + t.dataset.hash === location.hash);
-      if (t && t.getAttribute('aria-selected') !== 'true') select(t);
+      const t = tabFor(location.hash);
+      if (t && t.getAttribute('aria-selected') !== 'true') select(t, false, true);
+      card();
     });
   }
 
@@ -1193,6 +1381,7 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
     drawSourceTable(ref, model);
     drawMixTable(ref, model);
     drawWeekday(rows, model);
+    setupFinder(resources, model);
     if (crime) drawCrimeTable(crime);
     else document.getElementById('crime-monthly').innerHTML = '<p class="empty">The crime summary could not be loaded. Run <code>python3 scripts/crime_monthly.py</code> from the repo folder.</p>';
     if (calls) drawCalls(calls);
@@ -1207,6 +1396,7 @@ td .row-note { display: block; font-weight: 400; font-size: 11.5px; color: var(-
         resize() { this.redraw(); } },
       // HTML only, drawn once above; nothing to measure.
       weekday: { box: 'wd-bars', w: -1, init() { this.redraw = () => {}; }, resize() {} },
+      help: { box: 'help-cards', w: -1, init() { this.redraw = () => {}; }, resize() {} },
       context: { box: 'crime-monthly', w: -1,
         init() { this.redraw = crime ? () => drawCrimeMonthly(crime) : () => {}; this.redraw(); },
         resize() { this.redraw(); } },
